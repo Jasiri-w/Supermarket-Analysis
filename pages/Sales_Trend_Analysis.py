@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from utils.database import fetch_data
 from utils.preprocessing import preprocess_data
-from datetime import datetime
+from datetime import datetime, date
 
 st.set_page_config(
     page_title="Sales Trends",
@@ -31,9 +31,9 @@ if 'end_date' not in st.session_state:
     st.session_state.end_date = datetime.now().date()
 
 # Ensure session state dates are valid
-if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start_date, datetime.date):
+if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start_date, date):
     st.session_state.start_date = df.index.min().date()
-if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, datetime.date):
+if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, date):
     st.session_state.end_date = df.index.max().date()
 
 
