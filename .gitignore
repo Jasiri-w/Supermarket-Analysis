@@ -1,6 +1,5 @@
 # Custom
 fine_tuned_sales_model/
-static/
 proprietary/
 secrets.toml
 
