@@ -17,7 +17,11 @@ def load_data():
 
 # Load and preprocess data
 df, customers_df = load_data()
-
+st.set_page_config(
+    page_title="Sales Trends",
+    page_icon=st.secrets["FAVICON"],
+    layout="wide",
+)
 # Initialize session state for date inputs
 if 'start_date' not in st.session_state:
     st.session_state.start_date = df.index.min().date()
@@ -138,11 +142,7 @@ def format_date(date):
 
 
 
-st.set_page_config(
-    page_title="Sales Trends",
-    page_icon=st.secrets["FAVICON"],
-    layout="wide",
-)
+
 st.title("Sales Trend Analysis")
 st.sidebar.markdown("# Sales Analysis Dashboard")
 st.logo(
