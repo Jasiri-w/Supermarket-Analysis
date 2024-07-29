@@ -5,6 +5,11 @@ from utils.database import fetch_data
 from utils.preprocessing import preprocess_data
 from datetime import datetime
 
+st.set_page_config(
+    page_title="Sales Trends",
+    page_icon=st.secrets["FAVICON"],
+    layout="wide",
+)
 
 @st.cache_data
 def load_data():
@@ -17,11 +22,6 @@ def load_data():
 
 # Load and preprocess data
 df, customers_df = load_data()
-st.set_page_config(
-    page_title="Sales Trends",
-    page_icon=st.secrets["FAVICON"],
-    layout="wide",
-)
 # Initialize session state for date inputs
 if 'start_date' not in st.session_state:
     st.session_state.start_date = df.index.min().date()
