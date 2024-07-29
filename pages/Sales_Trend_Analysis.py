@@ -15,6 +15,15 @@ def load_data():
     customers_df = fetch_data(customers_query)
     return df, customers_df
 
+# Load and preprocess data
+df, customers_df = load_data()
+
+# Initialize session state for date inputs
+if 'start_date' not in st.session_state:
+    st.session_state.start_date = df.index.min().date()
+if 'end_date' not in st.session_state:
+    st.session_state.end_date = df.index.max().date()
+
 # Function to plot sales trend with interactivity
 def plot_sales_trend(df):
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
@@ -143,14 +152,6 @@ st.logo(
 
 
 
-# Load and preprocess data
-df, customers_df = load_data()
-
-# Initialize session state for date inputs
-if 'start_date' not in st.session_state:
-    st.session_state.start_date = df.index.min().date()
-if 'end_date' not in st.session_state:
-    st.session_state.end_date = df.index.max().date()
 
 # Adding interactive date inputs to the sidebar
 st.sidebar.markdown("## Date Range")
