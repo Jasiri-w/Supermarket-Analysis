@@ -11,6 +11,8 @@ st.set_page_config(
     layout="wide",
 )
 
+
+
 @st.cache_data
 def load_data():
     payment_query = "SELECT datein, amount, custid as customer_id FROM payment;"
@@ -24,8 +26,14 @@ def load_data():
 df, customers_df = load_data()
 # Initialize session state for date inputs
 if 'start_date' not in st.session_state:
-    st.session_state.start_date = df.index.min().date()
+    st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
 if 'end_date' not in st.session_state:
+    st.session_state.end_date = datetime.now().date()
+
+# Ensure session state dates are valid
+if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start_date, datetime.date):
+    st.session_state.start_date = df.index.min().date()
+if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, datetime.date):
     st.session_state.end_date = df.index.max().date()
 
 # Function to plot sales trend with interactivity
@@ -149,7 +157,6 @@ st.logo(
     st.secrets["LOGO"],
     icon_image=st.secrets["ICON"],
 )  
-
 
 
 
