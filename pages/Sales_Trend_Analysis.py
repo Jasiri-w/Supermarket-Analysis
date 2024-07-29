@@ -36,6 +36,7 @@ if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start
 if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, datetime.date):
     st.session_state.end_date = df.index.max().date()
 
+
 # Function to plot sales trend with interactivity
 def plot_sales_trend(df):
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
@@ -148,17 +149,12 @@ def format_date(date):
     return date.strftime("%B %d, %Y")
 
 
-
-
-
 st.title("Sales Trend Analysis")
 st.sidebar.markdown("# Sales Analysis Dashboard")
 st.logo(
     st.secrets["LOGO"],
     icon_image=st.secrets["ICON"],
 )  
-
-
 
 # Adding interactive date inputs to the sidebar
 st.sidebar.markdown("## Date Range")
