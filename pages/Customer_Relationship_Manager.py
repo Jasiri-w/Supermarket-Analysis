@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 from utils.database import fetch_data
+from utils.models import get_recommendations
+import joblib
 
 # Function to fetch all customer data including total amount spent and top purchases
 @st.cache_data
@@ -219,6 +221,55 @@ def get_payment_history_by_phone(phone):
     """
     return fetch_data(query)
 
+@st.cache_data
+def get_products():
+    products_query = """
+        SELECT
+        p.productno,
+        p.description,
+        p.saleprice,
+        p.buyprice,
+        COUNT(td.productno) AS purchase_count
+        FROM
+        product p
+        LEFT JOIN transactiondetails td ON p.productno = td.productno
+        GROUP BY
+        p.productno,
+        p.description,
+        p.saleprice,
+        p.buyprice
+        ORDER BY
+        p.productno;
+    """
+    return fetch_data(products_query)
+
+@st.cache_data
+def get_top_product(phone):
+    query = f"""
+    SELECT
+        td.productno,
+        p.description AS product_description,
+        SUM(td.saleprice * td.quantity) AS total_amount,
+        COUNT(td.productno) AS purchase_count
+    FROM
+        public.transactiondetails td
+        JOIN public.transactions t ON td.transactionid = t.id
+        JOIN public.payment pay ON t.invoiceno = pay.invoiceno::TEXT
+        JOIN public.product p ON td.productno = p.productno
+        JOIN public.customers c ON pay.custid = c.custid
+    WHERE
+        pay.phone = '{phone}'
+    GROUP BY    
+        td.productno,
+        p.description
+    ORDER BY
+         purchase_count DESC;
+    """
+    results = fetch_data(query)
+    
+    return results
+
+
 # Main function to render the Streamlit page
 def main():
     st.set_page_config(
@@ -288,6 +339,17 @@ def main():
                 top_customer_items = get_top_10_items_by_phone(phone_number)
                 st.subheader("Top 10 Most Purchased Items")
                 st.bar_chart(top_customer_items.set_index('product_description')['purchase_count'])
+
+                with st.container():
+                    st.subheader("Other Product Recommendations")
+                
+                    if st.button('Get Recommendations'):
+                        top_prod = get_top_product(phone_number)
+                        recommendations = get_recommendations(top_prod.iloc[0]['productno'], get_products())
+                        st.write(f"Because they liked {top_prod.iloc[0]['product_description']}")
+                        st.metric(label="Top Recommendation", value=f"{recommendations.iloc[0]['description']}", delta=f"{recommendations.iloc[0]['saleprice']}")
+                        st.write("Other recommendations")
+                        st.write(recommendations[['productno', 'description', 'saleprice']])
 
             else:
                 st.write("No customer data found for the provided phone number.")
