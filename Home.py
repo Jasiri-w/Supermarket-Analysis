@@ -30,7 +30,7 @@ with col2:
     
     with st.container(border=True, height=140):
         st.page_link("pages/AI_Chat_Bot.py", label="AI Chat Bot", icon="🤖", use_container_width=True)
-        st.markdown("Interact with the AI chatbot for understanding your data.")
+        st.markdown("This page is not available for online demonstration at the moment. Star this page and get notified when a possible fix is patched. Thank you: Interact with the AI chatbot for understanding your data.")
 
 #st.sidebar.title("Navigation")
 #page = st.sidebar.selectbox("Choose a Dashboard", ["Sales Trend Analysis"])

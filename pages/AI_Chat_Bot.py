@@ -1,23 +1,32 @@
 import streamlit as st
-from transformers import AutoModelForCausalLM, AutoTokenizer
+import torch
+from peft import AutoPeftModelForCausalLM
+from transformers import AutoTokenizer
 
-# Hugging Face model and tokenizer
-MODEL_PATH = st.secrets["MODEL_PATH"]
-tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
-model = AutoModelForCausalLM.from_pretrained(MODEL_PATH)
-
-# App title
 st.set_page_config(
     page_title="AI: Chatting...",
     page_icon=st.secrets["FAVICON"],
     layout="wide",
 )
+# Hugging Face model and tokenizer
+MODEL_PATH = st.secrets["MODEL_PATH"]
+
+# Ensure the model path and all required files are present
+try:
+    load_in_4bit = True  # Adjust based on your setup
+
+    # Load the model and tokenizer using peft
+    model = AutoPeftModelForCausalLM.from_pretrained(
+        MODEL_PATH,  # YOUR MODEL YOU USED FOR TRAINING
+        load_in_4bit=load_in_4bit
+    )
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
+except Exception as e:
+    st.error(f"Error loading model or tokenizer: {e}")
+
 st.title("AI Chat Bot")
-st.logo(
-    st.secrets["LOGO"],
-    icon_image=st.secrets["ICON"],
-)
-st.write('This chatbot is created using a fine-tuned GPT-2 model trained on sales data.')
+st.image(st.secrets["LOGO"], width=100)
+st.write('This chatbot is created using a fine-tuned Alpaca trained Llama model trained on sales data.')
 
 # Store LLM generated responses
 if "messages" not in st.session_state:
@@ -34,7 +43,6 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 
 # Function for generating responses
 def generate_response(prompt_input):
-
     # Include a detailed context in the prompt
     context = (
         "You are a data analysis assistant specializing in sales data for a supermarket in a hotel named Galaxy Inn, Athi River. "
@@ -50,9 +58,13 @@ def generate_response(prompt_input):
     # Concatenate the context with the user's input
     full_prompt = f"{context} {prompt_input} \nAssistant:"
 
-    inputs = tokenizer(full_prompt, return_tensors="pt")
-    outputs = model.generate(**inputs, max_length=200, num_return_sequences=1, no_repeat_ngram_size=2)
-    response = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    # Prepare inputs and generate response
+    inputs = tokenizer([full_prompt], return_tensors="pt")
+    if torch.cuda.is_available():
+        inputs = inputs.to("cuda")
+        model = model.to("cuda")
+    outputs = model.generate(**inputs, max_new_tokens=64, use_cache=True)
+    response = tokenizer.batch_decode(outputs, skip_special_tokens=True)[0]
     
     # Remove the context part from the response
     response = response.replace(context, "").strip()
