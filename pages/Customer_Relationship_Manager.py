@@ -279,12 +279,14 @@ def main():
     )
     st.title("Customer Relationship Dashboard")
     st.sidebar.markdown('# Home') 
+    st.sidebar.markdown('Manage your top customers, ranked by their total purchase contribution in "📈 Overview: All Customers".')
+    st.sidebar.markdown('Copy a phone number and search up their data in the 2nd tab named "🔍 Search for a Customer" and recommend your products.')
     st.logo(
         st.secrets["LOGO"],
         icon_image=st.secrets["ICON"],
     )  
 
-    tab1, tab2 = st.tabs(["📈 All Customers Overview", "🔍 Search for Customer Information"])
+    tab1, tab2 = st.tabs(["📈 Overview: All Customers", "🔍 Search for a Customer"])
 
     # Display all customer data
     all_customer_data = get_all_customer_data()

@@ -17,7 +17,7 @@ try:
 
     # Load the model and tokenizer using peft
     model = AutoPeftModelForCausalLM.from_pretrained(
-        MODEL_PATH,  # YOUR MODEL YOU USED FOR TRAINING
+        MODEL_PATH, 
         load_in_4bit=load_in_4bit
     )
     tokenizer = AutoTokenizer.from_pretrained(MODEL_PATH)
@@ -45,7 +45,7 @@ st.sidebar.button('Clear Chat History', on_click=clear_chat_history)
 def generate_response(prompt_input):
     # Include a detailed context in the prompt
     context = (
-        "You are a data analysis assistant specializing in sales data for a supermarket in a hotel named Galaxy Inn, Athi River. "
+        "You are a data analysis assistant specializing in sales data for a supermarket in a hotel. "
         "Your responses should be relevant to sales data analysis, customer trends, "
         "and provide insightful information. Avoid providing unrelated information. "
         "Answer in a concise and professional manner.\n\n"
