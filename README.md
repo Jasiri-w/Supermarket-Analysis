@@ -44,6 +44,8 @@ This project is developed using:
 
 Data is based on real supermarket data courtesy of a supermarket in Kenya, personal information has been randomized for preview.
 
+## Preview
+
 ![image](https://github.com/user-attachments/assets/60a3d512-af36-4150-89e2-d9077d817bb3)
 
 ![image](https://github.com/user-attachments/assets/b8d1480a-949a-45e3-84b6-9d973b41c8d4)
