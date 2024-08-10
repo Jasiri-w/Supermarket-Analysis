@@ -40,5 +40,15 @@ This project is developed using:
 ### 5. **AI Chat (Coming Soon)**
    - A fine-tuned language model (LLM) will be integrated into the app, providing an AI-powered chat feature. This AI assistant will specialize in sales data analysis and provide insightful responses related to customer trends, product performance, and overall supermarket analytics.
 
+Data is based on real supermarket data courtesy of a supermarket in Kenya, personal information has been randomized for preview.
+
+![image](https://github.com/user-attachments/assets/60a3d512-af36-4150-89e2-d9077d817bb3)
+
+![image](https://github.com/user-attachments/assets/b8d1480a-949a-45e3-84b6-9d973b41c8d4)
+
+![image](https://github.com/user-attachments/assets/09f0bec2-ebc8-4318-9463-90c3a46a4e33)
+
+... View more at [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
+
 ## Icons and Visuals
 Icons used in this project are courtesy of [geticon](https://github.com/get-icon/geticon).
