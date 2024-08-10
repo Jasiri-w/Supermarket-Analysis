@@ -38,6 +38,7 @@ This project is developed using:
      - **Pandas** for data processing.
      - **Scikit-learn** for implementing the content-based filtering algorithm.
      - **Joblib** for model persistence and fast retrieval.
+     - View the notebook used to train this model [here](https://colab.research.google.com/drive/1-hjoyNgRj2KtlPsl87aTI0xqu0VTwx4M?usp=sharing)
 
 ### 5. **AI Chat (Coming Soon)**
    - A fine-tuned language model (LLM) will be integrated into the app, providing an AI-powered chat feature. This AI assistant will specialize in sales data analysis and provide insightful responses related to customer trends, product performance, and overall supermarket analytics.
