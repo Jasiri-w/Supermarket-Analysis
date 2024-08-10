@@ -4,6 +4,8 @@ This Web App is a comprehensive data analysis dashboard designed for analyzing S
 
 View the live application at: [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
 
+This aims to help sales and management answer questions such as _who_ are our quality customers, _what_ are they buying and _how_ can we get them to buy more and build a relationship with our customers?
+
 ## Tech Stack
 
 This project is developed using:
