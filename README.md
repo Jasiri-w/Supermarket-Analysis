@@ -6,6 +6,8 @@ View the live application at: [Supermarket Analytics Dashboard](https://supermar
 
 This aims to help sales and management answer questions such as _who_ are our quality customers, _what_ are they buying and _how_ can we get them to buy more and build a relationship with our customers?
 
+Read the [code walkthrough here on Medium](https://medium.com/@jasiri.w/building-a-data-analysis-dashboard-with-python-9f4f35a8289f)
+
 ## Tech Stack
 
 This project is developed using:
