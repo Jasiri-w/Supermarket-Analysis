@@ -1,4 +1,6 @@
 import streamlit as st
+import streamlit_authenticator as stauth
+from utils.auth import get_authenticator
 
 st.set_page_config(
     page_title="Supermarket Analysis Dashboard",
@@ -11,6 +13,19 @@ st.logo(
     st.secrets["LOGO"],
     icon_image=st.secrets["ICON"],
 )
+
+authenticator = get_authenticator()
+
+# Authenticate user
+name, authentication_status, username = authenticator.login('Login', 'main')
+
+if authentication_status:
+    st.success(f"Welcome, {name}!")
+    st.sidebar.success("You are logged in.")
+elif authentication_status is False:
+    st.error("Invalid username or password.")
+elif authentication_status is None:
+    st.warning("Please enter your login credentials.")
 
 col1, col2 = st.columns(2)
 with col1:
