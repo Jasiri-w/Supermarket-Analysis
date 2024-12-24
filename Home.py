@@ -26,30 +26,31 @@ username = st.session_state['username']
 if authentication_status:
     st.success(f"Welcome, {name}!")
     st.sidebar.success("You are logged in.")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        with st.container(border=True, height=140):
+            st.page_link("pages/Customer_Relationship_Manager.py", label="Customer Relationship Manager", icon="🙍", use_container_width=True)
+            st.markdown("Monitor customer interactions and manage relationships.")
+        
+        with st.container(border=True, height=140):
+            st.page_link("pages/Product_Analysis.py", label="Product Analysis Dashboard", icon="🛍️", use_container_width=True)
+            st.markdown("Analyze product performance and sales metrics.")
+
+    # Column 2
+    with col2:
+        with st.container(border=True, height=140):
+            st.page_link("pages/Sales_Trend_Analysis.py", label="Sales Trends Dashboard", icon="📈", use_container_width=True)
+            st.markdown("Track and analyze sales trends over time.")
+        
+        with st.container(border=True, height=140):
+            st.page_link("pages/AI_Chat_Bot.py", label="AI Chat Bot", icon="🤖", use_container_width=True)
+            st.markdown("This page is not available for online demonstration at the moment. Star this page and get notified when a possible fix is patched. Thank you: Interact with the AI chatbot for understanding your data.")
+
 elif authentication_status is False:
     st.error("Invalid username or password.")
 elif authentication_status is None:
     st.warning("Please enter your login credentials.")
-
-col1, col2 = st.columns(2)
-with col1:
-    with st.container(border=True, height=140):
-        st.page_link("pages/Customer_Relationship_Manager.py", label="Customer Relationship Manager", icon="🙍", use_container_width=True)
-        st.markdown("Monitor customer interactions and manage relationships.")
-    
-    with st.container(border=True, height=140):
-        st.page_link("pages/Product_Analysis.py", label="Product Analysis Dashboard", icon="🛍️", use_container_width=True)
-        st.markdown("Analyze product performance and sales metrics.")
-
-# Column 2
-with col2:
-    with st.container(border=True, height=140):
-        st.page_link("pages/Sales_Trend_Analysis.py", label="Sales Trends Dashboard", icon="📈", use_container_width=True)
-        st.markdown("Track and analyze sales trends over time.")
-    
-    with st.container(border=True, height=140):
-        st.page_link("pages/AI_Chat_Bot.py", label="AI Chat Bot", icon="🤖", use_container_width=True)
-        st.markdown("This page is not available for online demonstration at the moment. Star this page and get notified when a possible fix is patched. Thank you: Interact with the AI chatbot for understanding your data.")
 
 #st.sidebar.title("Navigation")
 #page = st.sidebar.selectbox("Choose a Dashboard", ["Sales Trend Analysis"])
