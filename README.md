@@ -3,6 +3,7 @@
 This Web App is a comprehensive data analysis dashboard designed for analyzing Supermarket sales. It offers detailed views for Customer Relationship Management (CRM), Sales Trends Analysis, and Product Analysis. Additionally, a fine-tuned LLM-based AI chat feature is in the works and will be available soon.
 
 View the live application at: [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
+An authentication system is modelled in the application. The test users have username:*John* and password:*Johnpass*
 
 This aims to help sales and management answer questions such as _who_ are our quality customers, _what_ are they buying and _how_ can we get them to buy more and build a relationship with our customers?
 
