@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from utils.database import fetch_data
 from utils.models import get_recommendations
+from utils.auth import get_authenticator
 import joblib
 
 # Function to fetch all customer data including total amount spent and top purchases
@@ -285,6 +286,9 @@ def main():
         st.secrets["LOGO"],
         icon_image=st.secrets["ICON"],
     )  
+
+    if not st.session_state['authentication_status']:
+        get_authenticator().login(key='LoginCRM',location= 'main')
 
     tab1, tab2 = st.tabs(["📈 Overview: All Customers", "🔍 Search for a Customer"])
 

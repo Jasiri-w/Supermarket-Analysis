@@ -14,10 +14,8 @@ st.logo(
     icon_image=st.secrets["ICON"],
 )
 
-authenticator = get_authenticator()
-
 # Authenticate user
-# name, authentication_status, username = authenticator.login(key='Login',location= 'main')
+authenticator = get_authenticator()
 authenticator.login(key='Login1',location= 'main')
 authentication_status = st.session_state['authentication_status']
 name = st.session_state['name']
@@ -26,7 +24,7 @@ username = st.session_state['username']
 if authentication_status:
     st.success(f"Welcome, {name}!")
     st.sidebar.success("You are logged in.")
-    
+
     col1, col2 = st.columns(2)
     with col1:
         with st.container(border=True, height=140):
