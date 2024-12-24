@@ -289,6 +289,7 @@ def main():
 
     if not st.session_state['authentication_status']:
         get_authenticator().login(key='LoginCRM',location= 'main')
+        st.warning("Please enter your login credentials to access the CRM.")
 
     else:
 

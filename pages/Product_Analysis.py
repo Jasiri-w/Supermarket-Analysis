@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from utils.database import fetch_data
+from utils.auth import get_authenticator
 
 # Function to fetch credit account most purchased items
 @st.cache_data
@@ -346,29 +347,34 @@ st.sidebar.markdown("# Product Analysis Dashboard")
 
 # Example for expanders with headers and data
 
+if not st.session_state['authentication_status']:
+    get_authenticator().login(key='LoginCRM',location= 'main')
+    st.warning("Please enter your login credentials to access the CRM.")
 
-# Most Purchased Items
-with st.expander("Credit Account Most Purchased Items"):
-    credit_account_data = get_credit_account_most_purchased()
-    st.dataframe(credit_account_data)
+else:
 
-# Daily Customer Most Purchased Items
-with st.expander("Daily Customer Most Purchased Items"):
-    daily_customer_data = get_daily_customer_most_purchased()
-    st.dataframe(daily_customer_data)
+    # Most Purchased Items
+    with st.expander("Credit Account Most Purchased Items"):
+        credit_account_data = get_credit_account_most_purchased()
+        st.dataframe(credit_account_data)
 
-# Items Purchased Less than 20 Times
-with st.expander("Items Purchased Less than 20 Times"):
-    items_less_than_20_data = get_items_purchased_less_than_20()
-    st.dataframe(items_less_than_20_data)
+    # Daily Customer Most Purchased Items
+    with st.expander("Daily Customer Most Purchased Items"):
+        daily_customer_data = get_daily_customer_most_purchased()
+        st.dataframe(daily_customer_data)
 
-# Least Purchased Items
-with st.expander("Least Purchased Items"):
-    least_purchased_items_data = get_least_purchased_items()
-    st.dataframe(least_purchased_items_data)
+    # Items Purchased Less than 20 Times
+    with st.expander("Items Purchased Less than 20 Times"):
+        items_less_than_20_data = get_items_purchased_less_than_20()
+        st.dataframe(items_less_than_20_data)
 
-# Longest Buying Customers
-with st.expander("Longest Buying Customers"):
-    longest_buying_customers_data = get_longest_buying_customers()
-    st.dataframe(longest_buying_customers_data)
+    # Least Purchased Items
+    with st.expander("Least Purchased Items"):
+        least_purchased_items_data = get_least_purchased_items()
+        st.dataframe(least_purchased_items_data)
+
+    # Longest Buying Customers
+    with st.expander("Longest Buying Customers"):
+        longest_buying_customers_data = get_longest_buying_customers()
+        st.dataframe(longest_buying_customers_data)
 

@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from utils.database import fetch_data
 from utils.preprocessing import preprocess_data
 from datetime import datetime, date
+from utils.auth import get_authenticator
 
 st.set_page_config(
     page_title="Sales Trends",
@@ -191,23 +192,27 @@ options = st.sidebar.multiselect(
 
 
 # Main Layout
+if not st.session_state['authentication_status']:
+    get_authenticator().login(key='LoginCRM',location= 'main')
+    st.warning("Please enter your login credentials to access the CRM.")
 
-tab1, tab2 = st.tabs(["Charts", "Table"])
+else:
+    tab1, tab2 = st.tabs(["Charts", "Table"])
 
-with tab1:
-    if 'Monthly' in options:
-        plot_sales_trend(df)
-    if 'Weekly' in options:
-        plot_weekly_sales(df)
-    if 'Daily' in options:
-        plot_daily_sales(df)
-    if 'Monthly with Rolling Average' in options:
-        plot_monthly_sales_with_rolling_avg(df)
-with tab2:
-    st.subheader(f"Purchases from :green[{format_date(st.session_state.start_date)}] to :green[{format_date(st.session_state.end_date)}]")
-    st.dataframe(get_purchases_within_range(), use_container_width=True)
+    with tab1:
+        if 'Monthly' in options:
+            plot_sales_trend(df)
+        if 'Weekly' in options:
+            plot_weekly_sales(df)
+        if 'Daily' in options:
+            plot_daily_sales(df)
+        if 'Monthly with Rolling Average' in options:
+            plot_monthly_sales_with_rolling_avg(df)
+    with tab2:
+        st.subheader(f"Purchases from :green[{format_date(st.session_state.start_date)}] to :green[{format_date(st.session_state.end_date)}]")
+        st.dataframe(get_purchases_within_range(), use_container_width=True)
 
-    with st.container(border=True):
-        st.subheader("Search for Invoice information")
-        invoice_number = st.text_input("Enter Invoice Number: (invoiceno)", "")
-        st.dataframe(get_invoice_info(invoice_number))
+        with st.container(border=True):
+            st.subheader("Search for Invoice information")
+            invoice_number = st.text_input("Enter Invoice Number: (invoiceno)", "")
+            st.dataframe(get_invoice_info(invoice_number))
