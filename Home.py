@@ -17,11 +17,8 @@ st.logo(
 authenticator = get_authenticator()
 
 # Authenticate user
-# Debugging
-print(authenticator.login(key='Login',location= 'main'))
-
 # name, authentication_status, username = authenticator.login(key='Login',location= 'main')
-authenticator.login(key='Login',location= 'main')
+authenticator.login(key='Login1',location= 'main')
 authentication_status = st.session_state['authentication_status']
 name = st.session_state['name']
 username = st.session_state['username']
