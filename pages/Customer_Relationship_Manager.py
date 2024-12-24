@@ -290,75 +290,77 @@ def main():
     if not st.session_state['authentication_status']:
         get_authenticator().login(key='LoginCRM',location= 'main')
 
-    tab1, tab2 = st.tabs(["📈 Overview: All Customers", "🔍 Search for a Customer"])
-
-    # Display all customer data
-    all_customer_data = get_all_customer_data()
-
-    if not all_customer_data.empty:
-        with tab1:
-            st.subheader("All Customers Overview")
-            st.dataframe(all_customer_data)
-
-            # Top 10 Most Purchased Items by Total Purchases
-            top_items = get_top_10_items()
-            st.subheader("Top 10 Most Purchased Items")
-            st.bar_chart(top_items.set_index('product_description')['purchase_count'])
     else:
-        with tab1:
-            st.write("No data available.")
 
-    # Search for specific customer information
-    with tab2:
-        st.subheader("Search for Customer Information")
-        phone_number = st.text_input("Enter Customer Phone Number:", "")
+        tab1, tab2 = st.tabs(["📈 Overview: All Customers", "🔍 Search for a Customer"])
 
-        if phone_number:
-            # Fetch and display specific customer data
-            customer_data = get_customer_by_phone(phone_number)
-            
-            if not customer_data.empty:
-                st.subheader(f"Customer Data for Phone Number: {phone_number}")
+        # Display all customer data
+        all_customer_data = get_all_customer_data()
 
-                # Extract metrics
-                total_spent = customer_data['total_spent'].iloc[0]
-                total_payments = customer_data['total_payments'].iloc[0]
-                payment_duration_days = customer_data['payment_duration'].iloc[0]
+        if not all_customer_data.empty:
+            with tab1:
+                st.subheader("All Customers Overview")
+                st.dataframe(all_customer_data)
 
-                # Display metrics in columns
-                col1, col2, col3 = st.columns(3)
-                col1.metric("Total Spent", f"KES {total_spent:,.2f}")
-                col2.metric("Total Payments", f"{total_payments}")
-                col3.metric("Days With Us", f"{payment_duration_days}")
-
-                # Display customer payment history
-                payment_history = get_payment_history_by_phone(phone_number)
-                st.subheader("Payment History")
-                st.dataframe(payment_history)
-
-                # Display customer purchase history
-                purchase_history = get_purchase_history_by_phone(phone_number)
-                st.subheader("Purchase History")
-                st.dataframe(purchase_history)
-
-                # Display top 10 most purchased items for this customer
-                top_customer_items = get_top_10_items_by_phone(phone_number)
+                # Top 10 Most Purchased Items by Total Purchases
+                top_items = get_top_10_items()
                 st.subheader("Top 10 Most Purchased Items")
-                st.bar_chart(top_customer_items.set_index('product_description')['purchase_count'])
+                st.bar_chart(top_items.set_index('product_description')['purchase_count'])
+        else:
+            with tab1:
+                st.write("No data available.")
 
-                with st.container():
-                    st.subheader("Other Product Recommendations")
+        # Search for specific customer information
+        with tab2:
+            st.subheader("Search for Customer Information")
+            phone_number = st.text_input("Enter Customer Phone Number:", "")
+
+            if phone_number:
+                # Fetch and display specific customer data
+                customer_data = get_customer_by_phone(phone_number)
                 
-                    if st.button('Get Recommendations'):
-                        top_prod = get_top_product(phone_number)
-                        recommendations = get_recommendations(top_prod.iloc[0]['productno'], get_products())
-                        st.write(f"Because they liked {top_prod.iloc[0]['product_description']}")
-                        st.metric(label="Top Recommendation", value=f"{recommendations.iloc[0]['description']}", delta=f"{recommendations.iloc[0]['saleprice']}")
-                        st.write("Other recommendations")
-                        st.write(recommendations[['productno', 'description', 'saleprice']])
+                if not customer_data.empty:
+                    st.subheader(f"Customer Data for Phone Number: {phone_number}")
 
-            else:
-                st.write("No customer data found for the provided phone number.")
+                    # Extract metrics
+                    total_spent = customer_data['total_spent'].iloc[0]
+                    total_payments = customer_data['total_payments'].iloc[0]
+                    payment_duration_days = customer_data['payment_duration'].iloc[0]
+
+                    # Display metrics in columns
+                    col1, col2, col3 = st.columns(3)
+                    col1.metric("Total Spent", f"KES {total_spent:,.2f}")
+                    col2.metric("Total Payments", f"{total_payments}")
+                    col3.metric("Days With Us", f"{payment_duration_days}")
+
+                    # Display customer payment history
+                    payment_history = get_payment_history_by_phone(phone_number)
+                    st.subheader("Payment History")
+                    st.dataframe(payment_history)
+
+                    # Display customer purchase history
+                    purchase_history = get_purchase_history_by_phone(phone_number)
+                    st.subheader("Purchase History")
+                    st.dataframe(purchase_history)
+
+                    # Display top 10 most purchased items for this customer
+                    top_customer_items = get_top_10_items_by_phone(phone_number)
+                    st.subheader("Top 10 Most Purchased Items")
+                    st.bar_chart(top_customer_items.set_index('product_description')['purchase_count'])
+
+                    with st.container():
+                        st.subheader("Other Product Recommendations")
+                    
+                        if st.button('Get Recommendations'):
+                            top_prod = get_top_product(phone_number)
+                            recommendations = get_recommendations(top_prod.iloc[0]['productno'], get_products())
+                            st.write(f"Because they liked {top_prod.iloc[0]['product_description']}")
+                            st.metric(label="Top Recommendation", value=f"{recommendations.iloc[0]['description']}", delta=f"{recommendations.iloc[0]['saleprice']}")
+                            st.write("Other recommendations")
+                            st.write(recommendations[['productno', 'description', 'saleprice']])
+
+                else:
+                    st.write("No customer data found for the provided phone number.")
 
 if __name__ == "__main__":
     main()
