@@ -17,7 +17,14 @@ st.logo(
 authenticator = get_authenticator()
 
 # Authenticate user
-name, authentication_status, username = authenticator.login(key='Login',location= 'main')
+# Debugging
+print(authenticator.login(key='Login',location= 'main'))
+
+# name, authentication_status, username = authenticator.login(key='Login',location= 'main')
+authenticator.login(key='Login',location= 'main')
+authentication_status = st.session_state['authentication_status']
+name = st.session_state['name']
+username = st.session_state['username']
 
 if authentication_status:
     st.success(f"Welcome, {name}!")
