@@ -1,6 +1,7 @@
 from openai import OpenAI
 import streamlit as st
 from utils.auth import get_authenticator
+from utils.database import fetch_data
 
 st.set_page_config(
     page_title="AI: Chatting...",
