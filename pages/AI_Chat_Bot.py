@@ -1,7 +1,5 @@
-from peft import AutoPeftModelForCausalLM
 from openai import OpenAI
 import streamlit as st
-from transformers import AutoTokenizer
 from utils.auth import get_authenticator
 
 st.set_page_config(
@@ -11,8 +9,11 @@ st.set_page_config(
 )
 
 st.title("AI Chat Bot")
-st.image(st.secrets["LOGO"], width=100)
-st.write('This chatbot is created using a fine-tuned Alpaca trained Llama model trained on sales data.')
+st.logo(
+    st.secrets["LOGO"],
+    icon_image=st.secrets["ICON"],
+)
+st.write('This chatbot is created using ChatGPT.')
 
 
 if not st.session_state['authentication_status']:
