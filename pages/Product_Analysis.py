@@ -347,6 +347,9 @@ st.sidebar.markdown("# Product Analysis Dashboard")
 
 # Example for expanders with headers and data
 
+if 'authentication_status' not in st.session_state:
+    st.session_state['authentication_status'] = False
+
 if not st.session_state['authentication_status']:
     get_authenticator().login(key='LoginCRM',location= 'main')
     st.warning("Please enter your login credentials to access the CRM.")

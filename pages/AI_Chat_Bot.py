@@ -1,4 +1,5 @@
 from openai import OpenAI
+import pandas as pd
 import streamlit as st
 from utils.auth import get_authenticator
 from utils.database import fetch_data
@@ -16,6 +17,8 @@ st.logo(
 )
 st.write('This chatbot is created using ChatGPT.')
 
+if 'authentication_status' not in st.session_state:
+    st.session_state['authentication_status'] = False
 
 if not st.session_state['authentication_status']:
     get_authenticator().login(key='LoginCRM',location= 'main')

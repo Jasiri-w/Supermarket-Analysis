@@ -190,6 +190,8 @@ options = st.sidebar.multiselect(
     default=['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average']
 )
 
+if 'authentication_status' not in st.session_state:
+    st.session_state['authentication_status'] = False
 
 # Main Layout
 if not st.session_state['authentication_status']:
