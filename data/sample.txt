@@ -1,0 +1,1 @@
+This ChatBot uses GPT but uses RAG to help the LLM provide more contextualized responses. This was created by Jasiri Masiri Wasiri II.
