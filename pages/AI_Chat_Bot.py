@@ -85,8 +85,10 @@ def load_data():
         strictly based on the company's data.
 
         - DO NOT fabricate data or hallucinate any facts.
-        - If information is not available in the company's data, state: 
+        - If information is not available in the company's data from either the data folder e.g. the sample.txt file or database loaded information, state: 
         "I cannot answer this question based on the provided data."
+        - However you are to speak on anything provided in your context and if info is there that does not regard the company
+        , you may provide general information or tips based on your expertise
         - Always provide concise, clear, and actionable insights for employees 
         to make informed business decisions.
         - If asked about your nature (e.g., whether you're an LLM or chatbot), 
