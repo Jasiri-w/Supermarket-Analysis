@@ -19,7 +19,7 @@ st.logo(
     icon_image=st.secrets["ICON"],
 )
 st.write('This chatbot is created using ChatGPT.')
-
+debug_mode = False
 ## LlamaIndex Auxiliary Functions
 
 @st.cache_resource(show_spinner=False)
@@ -67,6 +67,10 @@ def load_data():
     # Combine static and dynamic documents
     dynamic_docs = fetch_dynamic_data()
     all_documents = static_docs + dynamic_docs
+
+    if debug_mode:
+        with st.sidebar:
+            st.write("Debugging customer data:", all_documents)
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
@@ -182,6 +186,12 @@ else:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+
+    debug_mode = st.sidebar.checkbox("Enable Debug Mode")
+
+    if debug_mode:
+        with st.sidebar:
+            st.write("Session State:", st.session_state)
 
     # Handle user input
     if prompt := st.chat_input("What is up?"):
