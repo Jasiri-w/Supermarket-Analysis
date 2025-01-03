@@ -29,7 +29,7 @@ def load_data():
     and prepares the index for the LlamaIndex-powered chat engine.
     """
     # Placeholder for dynamically fetched database data
-    @st.cache
+    @st.cache_data
     def fetch_dynamic_data():
         """
         Fetches data dynamically from the database and converts it into LlamaIndex-compatible Documents.
