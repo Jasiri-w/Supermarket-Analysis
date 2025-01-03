@@ -58,6 +58,9 @@ def load_data():
             except Exception as e:
                 print(f"Error fetching {query_name}: {e}")
 
+        if debug_mode:
+            with st.sidebar:
+                st.write(f"Foundational Documents: {documents}")
         return documents
 
     # Fetch static documents (e.g., text files in the "data" folder)
@@ -84,7 +87,6 @@ def load_data():
     # Build and return the index
     index = VectorStoreIndex.from_documents(all_documents)
     return index
-
 
 
 # Placeholder for dynamically called specific queries
@@ -187,7 +189,7 @@ else:
 
     if debug_mode:
         with st.sidebar:
-            st.write("Index Object:", index)
+            #st.write("Index Object:", index.documents)
             st.write("Session State:", st.session_state)
 
     # Handle user input
