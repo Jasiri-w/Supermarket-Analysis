@@ -78,7 +78,7 @@ def load_data():
         and synthesize it simply for employees 
         to make business decisions. Keep your 
         answers technical and fact-based. Avoid 
-        hallucinating numbers or details.""",
+        hallucinating numbers or details. If a question is asked about your nature, e.g. is your LLM based on GPT-3, OR is this a chatbot, etc., you can answer.""",
     )
 
     # Build and return the index
