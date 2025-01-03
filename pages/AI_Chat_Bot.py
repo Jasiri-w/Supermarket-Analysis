@@ -67,12 +67,13 @@ def load_data():
     reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
     static_docs = reader.load_data()
 
-    if debug_mode:
-        print(f"Static Documents: {static_docs}")
-
     # Combine static and dynamic documents
     dynamic_docs = fetch_dynamic_data()
     all_documents = static_docs + dynamic_docs
+
+    if debug_mode:
+        print(f"Static Documents: {static_docs}")
+        print(f"Dynamic Documents: {dynamic_docs}")
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
