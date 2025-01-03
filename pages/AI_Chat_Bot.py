@@ -209,6 +209,7 @@ else:
                 st.cache_resource.clear()
                 st.sidebar.success("Cache cleared successfully.")
             st.write("Session State:", st.session_state)
+            st.write("Model System Prompt:", Settings.llm.system_prompt)
 
     # Handle user input
     if prompt := st.chat_input("What is up?"):
