@@ -22,7 +22,7 @@ st.write('This chatbot is created using ChatGPT.')
 debug_mode = st.secrets["DEBUG_MODE"]
 ## LlamaIndex Auxiliary Functions
 
-@st.cache_resource(show_spinner=False)
+@st.cache_resource(show_spinner=True)
 def load_data():
     """
     Loads data from multiple sources, including database data, 
@@ -59,8 +59,7 @@ def load_data():
                 print(f"Error fetching {query_name}: {e}")
 
         if debug_mode:
-            with st.sidebar:
-                st.write(f"Foundational Documents: {documents}")
+            print(f"Foundational Documents: {documents}")
         return documents
 
     # Fetch static documents (e.g., text files in the "data" folder)
