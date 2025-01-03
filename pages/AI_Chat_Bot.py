@@ -29,6 +29,7 @@ def load_data():
     and prepares the index for the LlamaIndex-powered chat engine.
     """
     # Placeholder for dynamically fetched database data
+    @st.cache
     def fetch_dynamic_data():
         """
         Fetches data dynamically from the database and converts it into LlamaIndex-compatible Documents.
@@ -65,6 +66,9 @@ def load_data():
     # Fetch static documents (e.g., text files in the "data" folder)
     reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
     static_docs = reader.load_data()
+
+    if debug_mode:
+        print(f"Static Documents: {static_docs}")
 
     # Combine static and dynamic documents
     dynamic_docs = fetch_dynamic_data()
