@@ -68,10 +68,6 @@ def load_data():
     dynamic_docs = fetch_dynamic_data()
     all_documents = static_docs + dynamic_docs
 
-    if debug_mode:
-        with st.sidebar:
-            st.write("Debugging customer data:", all_documents)
-
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
         model="gpt-3.5-turbo",
@@ -191,6 +187,7 @@ else:
 
     if debug_mode:
         with st.sidebar:
+            st.write("Index Object:", index)
             st.write("Session State:", st.session_state)
 
     # Handle user input
