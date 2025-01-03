@@ -202,6 +202,10 @@ else:
     if debug_mode:
         with st.sidebar:
             #st.write("Index Object:", index.documents)
+            if st.sidebar.button("Reset Session State"):
+                st.cache_data.clear()
+                st.cache_resource.clear()
+                st.sidebar.success("Cache cleared successfully.")
             st.write("Session State:", st.session_state)
 
     # Handle user input
