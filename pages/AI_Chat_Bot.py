@@ -19,7 +19,7 @@ st.logo(
     icon_image=st.secrets["ICON"],
 )
 st.write('This chatbot is created using ChatGPT.')
-debug_mode = False
+debug_mode = st.secrets["DEBUG_MODE"]
 ## LlamaIndex Auxiliary Functions
 
 @st.cache_resource(show_spinner=False)
@@ -185,7 +185,7 @@ else:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    debug_mode = st.sidebar.checkbox("Enable Debug Mode")
+    debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
 
     if debug_mode:
         with st.sidebar:
