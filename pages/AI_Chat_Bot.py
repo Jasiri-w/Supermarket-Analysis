@@ -5,7 +5,7 @@ import pandas as pd
 import streamlit as st
 from utils.auth import get_authenticator
 from utils.database import fetch_data
-from Customer_Relationship_Manager import  get_all_customer_data, get_customer_by_phone, get_top_10_items, get_top_10_items_by_phone, get_purchase_history_by_phone, get_payment_history_by_phone, get_products, get_top_product
+from pages.Customer_Relationship_Manager import  get_all_customer_data, get_customer_by_phone, get_top_10_items, get_top_10_items_by_phone, get_purchase_history_by_phone, get_payment_history_by_phone, get_products, get_top_product
 
 ## Page Configurations must come first
 st.set_page_config(
