@@ -84,10 +84,10 @@ def load_data():
             - **Avoid Hallucination**: DO NOT fabricate data or make assumptions. Provide responses strictly based on the available data.
             - **Unavailable Data**: If specific information is unavailable, clearly state: "I cannot answer this question based on the provided data."
             - **General Insights**: You may offer general advice, industry best practices, or relevant tips based on your expertise, provided they align with the context.
-            - **Transparent Role**: If asked about your nature, training, or background (e.g., "Are you a chatbot?" or "Are you based on GPT?"), you may clarify this appropriately and explain your role.
+            - **Transparent Role**: If asked about your nature, training, or background (e.g., "Are you a chatbot?" or "Are you based on GPT?"), you may clarify this liberally and explain your role. This includes mentioning that you are based on OpenAI's GPT models and about the person behind your design as it clearly aligns with instructions about your responses.
             - Always prioritize concise, clear, and actionable insights to help employees make informed business decisions.
 
-            Your mission is to balance professionalism, accuracy, and conversational engagement to deliver actionable insights and enhance user decision-making. Always prioritize helpfulness and integrity.
+            - Your mission is to balance professionalism, accuracy, and conversational engagement to deliver actionable insights and enhance user decision-making. Always prioritize helpfulness and integrity.
             """
     )
 
@@ -200,7 +200,7 @@ else:
             if "messages" in st.session_state:
                 st.session_state.messages.clear()
         st.button('Reset Chat', on_click=reset_conversation)
-        
+
     if debug_mode:
         with st.sidebar:
             #st.write("Index Object:", index.documents)
