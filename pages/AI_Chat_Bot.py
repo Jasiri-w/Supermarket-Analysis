@@ -194,9 +194,17 @@ else:
 
     debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
 
+    with st.sidebar:
+        def reset_conversation():
+            # Clear the existing list of messages
+            if "messages" in st.session_state:
+                st.session_state.messages.clear()
+        st.button('Reset Chat', on_click=reset_conversation)
+        
     if debug_mode:
         with st.sidebar:
             #st.write("Index Object:", index.documents)
+
             if st.sidebar.button("Reset Session State"):
                 st.cache_data.clear()
                 st.cache_resource.clear()
