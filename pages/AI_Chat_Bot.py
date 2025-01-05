@@ -443,6 +443,7 @@ else:
             st.session_state.messages.append(message)
 
         # Pass the response to render_visualization for future enhancements
+        print("Debugging Response Stream:")
         print(response_stream.response)
         render_visualization({
             "text": response_stream.response["text"],
