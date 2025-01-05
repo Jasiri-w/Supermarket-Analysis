@@ -1,12 +1,39 @@
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader
+import matplotlib.pyplot as plt
 import openai
 import pandas as pd
 import streamlit as st
 from utils.auth import get_authenticator
 from utils.database import fetch_data
-from pages.Customer_Relationship_Manager import  get_all_customer_data, get_customer_by_phone, get_top_10_items, get_top_10_items_by_phone, get_purchase_history_by_phone, get_payment_history_by_phone, get_products, get_top_product
-
+from pages.Customer_Relationship_Manager import (
+    get_all_customer_data,
+    get_customer_by_phone,
+    get_top_10_items,
+    get_top_10_items_by_phone,
+    get_purchase_history_by_phone,
+    get_payment_history_by_phone,
+    get_products,
+    get_top_product,
+)
+from pages.Sales_Trend_Analysis import (
+    load_data as load_sales_data,
+    plot_sales_trend,
+    plot_weekly_sales,
+    plot_daily_sales,
+    plot_monthly_sales_with_rolling_avg,
+    get_purchases_within_range,
+    get_invoice_info,
+    format_date,
+)
+from pages.Product_Analysis import (
+    get_credit_account_most_purchased,
+    get_daily_customer_most_purchased,
+    get_highest_daily_customers,
+    get_items_purchased_less_than_20,
+    get_least_purchased_items,
+    get_longest_buying_customers,
+)
 ## Page Configurations must come first
 st.set_page_config(
     page_title="AI: Chatting...",
@@ -162,6 +189,120 @@ def fetch_specific_data_by_phone(phone):
 
     return results
 
+def render_visualization(llm_response):
+    """
+    Render visualizations based on the LLM response. Utilizes all imported functions.
+    :param llm_response: Dictionary with keys 'text' and optional 'metadata'.
+    """
+    response_text = llm_response.get("text", "").lower()
+
+    # Helper function to display Streamlit visualizations or outputs
+    def display_output(output, title="Result"):
+        if isinstance(output, pd.DataFrame):
+            st.write(title)
+            st.dataframe(output)
+        elif isinstance(output, str):
+            st.write(title)
+            st.text(output)
+        elif isinstance(output, plt.Figure):
+            st.write(title)
+            st.pyplot(output)
+        else:
+            st.write(f"{title}: {output}")
+
+    # Mapping of triggers to functions
+    if "all customer data" in response_text:
+        output = get_all_customer_data()
+        display_output(output, "All Customer Data")
+
+    if "customer by phone" in response_text:
+        # Example phone input; adjust based on actual LLM response structure
+        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+        output = get_customer_by_phone(phone)
+        display_output(output, f"Customer Data for Phone: {phone}")
+
+    if "top 10 items" in response_text and "by phone" not in response_text:
+        output = get_top_10_items()
+        display_output(output, "Top 10 Items")
+
+    if "top 10 items by phone" in response_text:
+        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+        output = get_top_10_items_by_phone(phone)
+        display_output(output, f"Top 10 Items for Phone: {phone}")
+
+    if "purchase history" in response_text:
+        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+        output = get_purchase_history_by_phone(phone)
+        display_output(output, f"Purchase History for Phone: {phone}")
+
+    if "payment history" in response_text:
+        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+        output = get_payment_history_by_phone(phone)
+        display_output(output, f"Payment History for Phone: {phone}")
+
+    if "all products" in response_text:
+        output = get_products()
+        display_output(output, "All Products")
+
+    if "top product" in response_text:
+        output = get_top_product()
+        display_output(output, "Top Product")
+
+    if "sales trend" in response_text:
+        output = plot_sales_trend()
+        display_output(output, "Sales Trend")
+
+    if "weekly sales" in response_text:
+        output = plot_weekly_sales()
+        display_output(output, "Weekly Sales")
+
+    if "daily sales" in response_text:
+        output = plot_daily_sales()
+        display_output(output, "Daily Sales")
+
+    if "monthly sales" in response_text:
+        output = plot_monthly_sales_with_rolling_avg()
+        display_output(output, "Monthly Sales with Rolling Average")
+
+    if "purchases within range" in response_text:
+        # Example date range
+        start_date, end_date = "2024-01-01", "2024-12-31"
+        output = get_purchases_within_range(start_date, end_date)
+        display_output(output, f"Purchases from {start_date} to {end_date}")
+
+    if "invoice info" in response_text:
+        output = get_invoice_info()
+        display_output(output, "Invoice Info")
+
+    if "format date" in response_text:
+        # Example date
+        date_to_format = "2024-12-31"
+        output = format_date(date_to_format)
+        display_output(output, f"Formatted Date: {output}")
+
+    if "credit account most purchased" in response_text:
+        output = get_credit_account_most_purchased()
+        display_output(output, "Credit Account Most Purchased Items")
+
+    if "daily customer most purchased" in response_text:
+        output = get_daily_customer_most_purchased()
+        display_output(output, "Daily Customer Most Purchased Items")
+
+    if "highest daily customers" in response_text:
+        output = get_highest_daily_customers()
+        display_output(output, "Highest Daily Customers")
+
+    if "items purchased less than 20" in response_text:
+        output = get_items_purchased_less_than_20()
+        display_output(output, "Items Purchased Less than 20")
+
+    if "least purchased items" in response_text:
+        output = get_least_purchased_items()
+        display_output(output, "Least Purchased Items")
+
+    if "longest buying customers" in response_text:
+        output = get_longest_buying_customers()
+        display_output(output, "Longest Buying Customers")
 
 # Load the index for use in the chat engine
 index = load_data()
@@ -204,8 +345,7 @@ else:
 
     if debug_mode:
         with st.sidebar:
-            #st.write("Index Object:", index.documents)
-
+            # Cache clearing button
             if st.sidebar.button("Reset Session State"):
                 st.cache_data.clear()
                 st.cache_resource.clear()
@@ -227,3 +367,6 @@ else:
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_stream.response}
             st.session_state.messages.append(message)
+
+        # Pass the response to render_visualization for future enhancements
+        render_visualization({"text": response_stream.response, "metadata": response_stream.metadata})
