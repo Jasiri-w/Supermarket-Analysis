@@ -6,13 +6,6 @@ from utils.preprocessing import preprocess_data
 from datetime import datetime, date
 from utils.auth import get_authenticator
 
-st.set_page_config(
-    page_title="Sales Trends",
-    page_icon=st.secrets["FAVICON"],
-    layout="wide",
-)
-
-
 
 @st.cache_data
 def load_sales_data():
@@ -22,20 +15,6 @@ def load_sales_data():
     customers_query = "SELECT custid as customer_id, cname FROM customers;"
     customers_df = fetch_data(customers_query)
     return df, customers_df
-
-# Load and preprocess data
-df, customers_df = load_sales_data()
-# Initialize session state for date inputs
-if 'start_date' not in st.session_state:
-    st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
-if 'end_date' not in st.session_state:
-    st.session_state.end_date = datetime.now().date()
-
-# Ensure session state dates are valid
-if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start_date, date):
-    st.session_state.start_date = df.index.min().date()
-if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, date):
-    st.session_state.end_date = df.index.max().date()
 
 
 # Function to plot sales trend with interactivity
@@ -150,6 +129,28 @@ def format_date(date):
     return date.strftime("%B %d, %Y")
 
 def main():
+
+    st.set_page_config(
+        page_title="Sales Trends",
+        page_icon=st.secrets["FAVICON"],
+        layout="wide",
+    )
+
+    # Load and preprocess data
+    df, customers_df = load_sales_data()
+    # Initialize session state for date inputs
+    if 'start_date' not in st.session_state:
+        st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
+    if 'end_date' not in st.session_state:
+        st.session_state.end_date = datetime.now().date()
+
+    # Ensure session state dates are valid
+    if pd.isna(st.session_state.start_date) or not isinstance(st.session_state.start_date, date):
+        st.session_state.start_date = df.index.min().date()
+    if pd.isna(st.session_state.end_date) or not isinstance(st.session_state.end_date, date):
+        st.session_state.end_date = df.index.max().date()
+
+    # Main Layout
     st.title("Sales Trend Analysis")
     st.sidebar.markdown("# Sales Analysis Dashboard")
     st.logo(
