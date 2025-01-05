@@ -210,7 +210,7 @@ def render_visualization(llm_response):
         else:
             st.write(f"{title}: {output}")
 
-    # Mapping of triggers to functions
+    '''# Mapping of triggers to functions
     if "all customer data" in response_text:
         output = get_all_customer_data()
         display_output(output, "All Customer Data")
@@ -302,7 +302,7 @@ def render_visualization(llm_response):
 
     if "longest buying customers" in response_text:
         output = get_longest_buying_customers()
-        display_output(output, "Longest Buying Customers")
+        display_output(output, "Longest Buying Customers")'''
 
 # Load the index for use in the chat engine
 index = load_data()
