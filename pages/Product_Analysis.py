@@ -332,52 +332,56 @@ def get_longest_buying_customers():
     """
     return fetch_data(query)
 
-# Streamlit Page
-st.set_page_config(
-    page_title="Product Performance Analysis",
-    page_icon=st.secrets["FAVICON"],
-    layout="wide",
-)
-st.title("Product Performance Analysis")
-st.logo(
-    st.secrets["LOGO"],
-    icon_image=st.secrets["ICON"],
-)
-st.sidebar.markdown("# Product Analysis Dashboard")
+def main():
+    # Streamlit Page
+    st.set_page_config(
+        page_title="Product Performance Analysis",
+        page_icon=st.secrets["FAVICON"],
+        layout="wide",
+    )
+    st.title("Product Performance Analysis")
+    st.logo(
+        st.secrets["LOGO"],
+        icon_image=st.secrets["ICON"],
+    )
+    st.sidebar.markdown("# Product Analysis Dashboard")
 
-# Example for expanders with headers and data
+    # Example for expanders with headers and data
 
-if 'authentication_status' not in st.session_state:
-    st.session_state['authentication_status'] = False
+    if 'authentication_status' not in st.session_state:
+        st.session_state['authentication_status'] = False
 
-if not st.session_state['authentication_status']:
-    get_authenticator().login(key='LoginCRM',location= 'main')
-    st.warning("Please enter your login credentials to access the CRM.")
+    if not st.session_state['authentication_status']:
+        get_authenticator().login(key='LoginCRM',location= 'main')
+        st.warning("Please enter your login credentials to access the CRM.")
 
-else:
+    else:
 
-    # Most Purchased Items
-    with st.expander("Credit Account Most Purchased Items"):
-        credit_account_data = get_credit_account_most_purchased()
-        st.dataframe(credit_account_data)
+        # Most Purchased Items
+        with st.expander("Credit Account Most Purchased Items"):
+            credit_account_data = get_credit_account_most_purchased()
+            st.dataframe(credit_account_data)
 
-    # Daily Customer Most Purchased Items
-    with st.expander("Daily Customer Most Purchased Items"):
-        daily_customer_data = get_daily_customer_most_purchased()
-        st.dataframe(daily_customer_data)
+        # Daily Customer Most Purchased Items
+        with st.expander("Daily Customer Most Purchased Items"):
+            daily_customer_data = get_daily_customer_most_purchased()
+            st.dataframe(daily_customer_data)
 
-    # Items Purchased Less than 20 Times
-    with st.expander("Items Purchased Less than 20 Times"):
-        items_less_than_20_data = get_items_purchased_less_than_20()
-        st.dataframe(items_less_than_20_data)
+        # Items Purchased Less than 20 Times
+        with st.expander("Items Purchased Less than 20 Times"):
+            items_less_than_20_data = get_items_purchased_less_than_20()
+            st.dataframe(items_less_than_20_data)
 
-    # Least Purchased Items
-    with st.expander("Least Purchased Items"):
-        least_purchased_items_data = get_least_purchased_items()
-        st.dataframe(least_purchased_items_data)
+        # Least Purchased Items
+        with st.expander("Least Purchased Items"):
+            least_purchased_items_data = get_least_purchased_items()
+            st.dataframe(least_purchased_items_data)
 
-    # Longest Buying Customers
-    with st.expander("Longest Buying Customers"):
-        longest_buying_customers_data = get_longest_buying_customers()
-        st.dataframe(longest_buying_customers_data)
+        # Longest Buying Customers
+        with st.expander("Longest Buying Customers"):
+            longest_buying_customers_data = get_longest_buying_customers()
+            st.dataframe(longest_buying_customers_data)
 
+# Run the main function only if this file is executed directly
+if __name__ == "__main__":
+    main()

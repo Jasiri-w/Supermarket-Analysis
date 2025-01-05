@@ -149,72 +149,76 @@ def get_invoice_info(invoice_number):
 def format_date(date):
     return date.strftime("%B %d, %Y")
 
+def main():
+    st.title("Sales Trend Analysis")
+    st.sidebar.markdown("# Sales Analysis Dashboard")
+    st.logo(
+        st.secrets["LOGO"],
+        icon_image=st.secrets["ICON"],
+    )  
 
-st.title("Sales Trend Analysis")
-st.sidebar.markdown("# Sales Analysis Dashboard")
-st.logo(
-    st.secrets["LOGO"],
-    icon_image=st.secrets["ICON"],
-)  
+    # Adding interactive date inputs to the sidebar
+    st.sidebar.markdown("## Date Range")
+    start_date = st.sidebar.date_input("Start Date", st.session_state.start_date)
+    end_date = st.sidebar.date_input("End Date", st.session_state.end_date)
 
-# Adding interactive date inputs to the sidebar
-st.sidebar.markdown("## Date Range")
-start_date = st.sidebar.date_input("Start Date", st.session_state.start_date)
-end_date = st.sidebar.date_input("End Date", st.session_state.end_date)
+    # Update session state on button click
+    if st.sidebar.button('Apply Date Range'):
+        st.session_state.start_date = start_date
+        st.session_state.end_date = end_date
+        #st.rerun()
 
-# Update session state on button click
-if st.sidebar.button('Apply Date Range'):
-    st.session_state.start_date = start_date
-    st.session_state.end_date = end_date
-    #st.rerun()
+    # Adding a filter for credit accounts (customers)
+    st.sidebar.markdown("## Filter by Customers")
+    customer_filter = st.sidebar.multiselect(
+        "Select Customers to Exclude",
+        options=customers_df['cname'].tolist()
+    )
 
-# Adding a filter for credit accounts (customers)
-st.sidebar.markdown("## Filter by Customers")
-customer_filter = st.sidebar.multiselect(
-    "Select Customers to Exclude",
-    options=customers_df['cname'].tolist()
-)
+    if customer_filter:
+        customer_ids_to_exclude = customers_df[customers_df['cname'].isin(customer_filter)]['customer_id'].values
+        df = df[~df['customer_id'].isin(customer_ids_to_exclude)]
 
-if customer_filter:
-    customer_ids_to_exclude = customers_df[customers_df['cname'].isin(customer_filter)]['customer_id'].values
-    df = df[~df['customer_id'].isin(customer_ids_to_exclude)]
+    # Filter the data based on the selected date range
+    df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
 
-# Filter the data based on the selected date range
-df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
+    # Adding interactive options to the sidebar
+    st.sidebar.markdown("## Plot Selection")
+    options = st.sidebar.multiselect(
+        'Scope',
+        ['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average'],
+        default=['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average']
+    )
 
-# Adding interactive options to the sidebar
-st.sidebar.markdown("## Plot Selection")
-options = st.sidebar.multiselect(
-    'Scope',
-    ['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average'],
-    default=['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average']
-)
+    if 'authentication_status' not in st.session_state:
+        st.session_state['authentication_status'] = False
 
-if 'authentication_status' not in st.session_state:
-    st.session_state['authentication_status'] = False
+    # Main Layout
+    if not st.session_state['authentication_status']:
+        get_authenticator().login(key='LoginCRM',location= 'main')
+        st.warning("Please enter your login credentials to access the CRM.")
 
-# Main Layout
-if not st.session_state['authentication_status']:
-    get_authenticator().login(key='LoginCRM',location= 'main')
-    st.warning("Please enter your login credentials to access the CRM.")
+    else:
+        tab1, tab2 = st.tabs(["Charts", "Table"])
 
-else:
-    tab1, tab2 = st.tabs(["Charts", "Table"])
+        with tab1:
+            if 'Monthly' in options:
+                plot_sales_trend(df)
+            if 'Weekly' in options:
+                plot_weekly_sales(df)
+            if 'Daily' in options:
+                plot_daily_sales(df)
+            if 'Monthly with Rolling Average' in options:
+                plot_monthly_sales_with_rolling_avg(df)
+        with tab2:
+            st.subheader(f"Purchases from :green[{format_date(st.session_state.start_date)}] to :green[{format_date(st.session_state.end_date)}]")
+            st.dataframe(get_purchases_within_range(), use_container_width=True)
 
-    with tab1:
-        if 'Monthly' in options:
-            plot_sales_trend(df)
-        if 'Weekly' in options:
-            plot_weekly_sales(df)
-        if 'Daily' in options:
-            plot_daily_sales(df)
-        if 'Monthly with Rolling Average' in options:
-            plot_monthly_sales_with_rolling_avg(df)
-    with tab2:
-        st.subheader(f"Purchases from :green[{format_date(st.session_state.start_date)}] to :green[{format_date(st.session_state.end_date)}]")
-        st.dataframe(get_purchases_within_range(), use_container_width=True)
+            with st.container(border=True):
+                st.subheader("Search for Invoice information")
+                invoice_number = st.text_input("Enter Invoice Number: (invoiceno)", "")
+                st.dataframe(get_invoice_info(invoice_number))
 
-        with st.container(border=True):
-            st.subheader("Search for Invoice information")
-            invoice_number = st.text_input("Enter Invoice Number: (invoiceno)", "")
-            st.dataframe(get_invoice_info(invoice_number))
+if __name__ == "__main__":
+    main()
+    
