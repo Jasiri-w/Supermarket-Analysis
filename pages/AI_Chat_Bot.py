@@ -115,16 +115,48 @@ def load_data():
     Settings.llm = OpenAI(
         model="gpt-4o-mini",
         temperature=0.0,  # Ensure deterministic, fact-based responses
-        system_prompt="""You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
-            - **Conversational Tone**: Speak conversationally and engagingly, like a friendly and professional assistant. Speak in the first person and use a friendly, approachable tone.
-            - **Avoid Hallucination**: DO NOT fabricate data or make assumptions. Provide responses strictly based on the available data.
-            - **Unavailable Data**: If specific information is unavailable, clearly state: "I cannot answer this question based on the provided data."
-            - **General Insights**: You may offer general advice, industry best practices, or relevant tips based on your expertise, provided they align with the context.
-            - **Transparent Role**: If asked about your nature, training, or background (e.g., "Are you a chatbot?" or "Are you based on GPT?"), you may clarify this liberally and explain your role. This includes mentioning that you are based on OpenAI's GPT models and about the person behind your design as it clearly aligns with instructions about your responses.
-            - Always prioritize concise, clear, and actionable insights to help employees make informed business decisions.
+        system_prompt="""
+            You are a highly reliable and conversational personal data analytics assistant specializing in analyzing sales, product, and marketing information. Your responses must adhere to the following structured format to ensure compatibility with the rendering function:
+            Key Response Format Instructions:
+            1. **Structure**:
+            - All responses must be provided as a JSON object.
+            - The JSON object must include the following keys:
+                - `"text"`: A string summarizing the response in plain language.
+                - `"visualization"` (optional): An object containing details for rendering visualizations.
 
-            - Your mission is to balance professionalism, accuracy, and conversational engagement to deliver actionable insights and enhance user decision-making. Always prioritize helpfulness and integrity.
-            """
+            2. **Visualization Object**:
+            - If the response involves a visualization, include the `"visualization"` key with the following structure:
+                ```json
+                {
+                "type": "<visualization_type>",
+                "data_params": {
+                    "<param_name>": "<param_value>"
+                }
+                }
+                ```
+            - Examples of visualization types: `"sales_trend"`, `"top_10_items"`, `"purchase_history"`.
+            - `data_params` should contain any parameters needed to generate the visualization, such as dates or customer IDs.
+
+            3. **Unavailable Data**:
+            - If specific data is unavailable, the response should only include the `"text"` key with a message like: "I cannot answer this question based on the provided data."
+
+            4. **Transparency**:
+            - If asked about your role, explain clearly that you are a data analytics assistant based on OpenAI's GPT models.
+
+            Example Response:
+            User Input: "Show me the sales trend for the past month."
+            LLM Response:
+            ```json
+            {
+            "text": "Here is the sales trend for the past month:",
+            "visualization": {
+                "type": "sales_trend",
+                "data_params": {
+                "start_date": "2024-12-01",
+                "end_date": "2024-12-31"
+                }
+            }
+            }"""
     )
 
     # Build and return the index
@@ -200,9 +232,10 @@ def fetch_specific_data_by_phone(phone):
 def render_visualization(llm_response):
     """
     Render visualizations based on the LLM response. Utilizes all imported functions.
-    :param llm_response: Dictionary with keys 'text' and optional 'metadata'.
+    :param llm_response: Dictionary with keys 'text' and optional 'visualization'.
     """
     response_text = llm_response.get("text", "").lower()
+    visualization = llm_response.get("visualization", {})
 
     # Helper function to display Streamlit visualizations or outputs
     def display_output(output, title="Result"):
@@ -218,99 +251,131 @@ def render_visualization(llm_response):
         else:
             st.write(f"{title}: {output}")
 
-    # Mapping of triggers to functions
-    if "all customer data" in response_text:
-        output = get_all_customer_data()
-        display_output(output, "All Customer Data")
+    # Handle visualization rendering
+    if visualization:
+        vis_type = visualization.get("type")
+        data_params = visualization.get("data_params", {})
 
-    if "customer by phone" in response_text:
-        # Example phone input; adjust based on actual LLM response structure
-        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-        output = get_customer_by_phone(phone)
-        display_output(output, f"Customer Data for Phone: {phone}")
+        if vis_type == "sales_trend":
+            start_date = data_params.get("start_date")
+            end_date = data_params.get("end_date")
+            output = plot_sales_trend(start_date=start_date, end_date=end_date)
+            display_output(output, "Sales Trend")
 
-    if "top 10 items" in response_text and "by phone" not in response_text:
-        output = get_top_10_items()
-        display_output(output, "Top 10 Items")
+        elif vis_type == "top_10_items":
+            output = get_top_10_items()
+            display_output(output, "Top 10 Items")
 
-    if "top 10 items by phone" in response_text:
-        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-        output = get_top_10_items_by_phone(phone)
-        display_output(output, f"Top 10 Items for Phone: {phone}")
+        elif vis_type == "customer_data":
+            phone = data_params.get("phone")
+            output = get_customer_by_phone(phone)
+            display_output(output, f"Customer Data for Phone: {phone}")
 
-    if "purchase history" in response_text:
-        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-        output = get_purchase_history_by_phone(phone)
-        display_output(output, f"Purchase History for Phone: {phone}")
+        elif vis_type == "purchase_history":
+            phone = data_params.get("phone")
+            output = get_purchase_history_by_phone(phone)
+            display_output(output, f"Purchase History for Phone: {phone}")
 
-    if "payment history" in response_text:
-        phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-        output = get_payment_history_by_phone(phone)
-        display_output(output, f"Payment History for Phone: {phone}")
+        elif vis_type == "payment_history":
+            phone = data_params.get("phone")
+            output = get_payment_history_by_phone(phone)
+            display_output(output, f"Payment History for Phone: {phone}")
 
-    if "all products" in response_text:
-        output = get_products()
-        display_output(output, "All Products")
+        elif vis_type == "weekly_sales":
+            output = plot_weekly_sales()
+            display_output(output, "Weekly Sales")
 
-    if "top product" in response_text:
-        output = get_top_product()
-        display_output(output, "Top Product")
+        elif vis_type == "daily_sales":
+            output = plot_daily_sales()
+            display_output(output, "Daily Sales")
 
-    if "sales trend" in response_text:
-        output = plot_sales_trend()
-        display_output(output, "Sales Trend")
+        elif vis_type == "monthly_sales":
+            output = plot_monthly_sales_with_rolling_avg()
+            display_output(output, "Monthly Sales with Rolling Average")
 
-    if "weekly sales" in response_text:
-        output = plot_weekly_sales()
-        display_output(output, "Weekly Sales")
+        elif vis_type == "invoice_info":
+            output = get_invoice_info()
+            display_output(output, "Invoice Info")
 
-    if "daily sales" in response_text:
-        output = plot_daily_sales()
-        display_output(output, "Daily Sales")
+        elif vis_type == "credit_account_most_purchased":
+            output = get_credit_account_most_purchased()
+            display_output(output, "Credit Account Most Purchased Items")
 
-    if "monthly sales" in response_text:
-        output = plot_monthly_sales_with_rolling_avg()
-        display_output(output, "Monthly Sales with Rolling Average")
+        elif vis_type == "items_purchased_less_than_20":
+            output = get_items_purchased_less_than_20()
+            display_output(output, "Items Purchased Less than 20")
 
-    if "purchases within range" in response_text:
-        # Example date range
-        start_date, end_date = "2024-01-01", "2024-12-31"
-        output = get_purchases_within_range(start_date, end_date)
-        display_output(output, f"Purchases from {start_date} to {end_date}")
+        elif vis_type == "least_purchased_items":
+            output = get_least_purchased_items()
+            display_output(output, "Least Purchased Items")
 
-    if "invoice info" in response_text:
-        output = get_invoice_info()
-        display_output(output, "Invoice Info")
+        elif vis_type == "longest_buying_customers":
+            output = get_longest_buying_customers()
+            display_output(output, "Longest Buying Customers")
 
-    if "format date" in response_text:
-        # Example date
-        date_to_format = "2024-12-31"
-        output = format_date(date_to_format)
-        display_output(output, f"Formatted Date: {output}")
+        elif vis_type == "highest_daily_customers":
+            output = get_highest_daily_customers()
+            display_output(output, "Highest Daily Customers")
 
-    if "credit account most purchased" in response_text:
-        output = get_credit_account_most_purchased()
-        display_output(output, "Credit Account Most Purchased Items")
+        elif vis_type == "daily_customer_most_purchased":
+            output = get_daily_customer_most_purchased()
+            display_output(output, "Daily Customer Most Purchased Items")
 
-    if "daily customer most purchased" in response_text:
-        output = get_daily_customer_most_purchased()
-        display_output(output, "Daily Customer Most Purchased Items")
+        else:
+            st.write(f"Unknown visualization type: {vis_type}")
 
-    if "highest daily customers" in response_text:
-        output = get_highest_daily_customers()
-        display_output(output, "Highest Daily Customers")
+    else:
+        # Process response_text for keyword-based triggers
+        if "all customer data" in response_text:
+            output = get_all_customer_data()
+            display_output(output, "All Customer Data")
 
-    if "items purchased less than 20" in response_text:
-        output = get_items_purchased_less_than_20()
-        display_output(output, "Items Purchased Less than 20")
+        elif "customer by phone" in response_text:
+            phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+            output = get_customer_by_phone(phone)
+            display_output(output, f"Customer Data for Phone: {phone}")
 
-    if "least purchased items" in response_text:
-        output = get_least_purchased_items()
-        display_output(output, "Least Purchased Items")
+        elif "top 10 items by phone" in response_text:
+            phone = llm_response.get("metadata", {}).get("phone", "1234567890")
+            output = get_top_10_items_by_phone(phone)
+            display_output(output, f"Top 10 Items for Phone: {phone}")
 
-    if "longest buying customers" in response_text:
-        output = get_longest_buying_customers()
-        display_output(output, "Longest Buying Customers")
+        elif "top product" in response_text:
+            output = get_top_product()
+            display_output(output, "Top Product")
+
+        elif "sales trend" in response_text:
+            output = plot_sales_trend()
+            display_output(output, "Sales Trend")
+
+        elif "weekly sales" in response_text:
+            output = plot_weekly_sales()
+            display_output(output, "Weekly Sales")
+
+        elif "daily sales" in response_text:
+            output = plot_daily_sales()
+            display_output(output, "Daily Sales")
+
+        elif "monthly sales" in response_text:
+            output = plot_monthly_sales_with_rolling_avg()
+            display_output(output, "Monthly Sales with Rolling Average")
+
+        elif "purchases within range" in response_text:
+            start_date, end_date = "2024-01-01", "2024-12-31"  # Example date range
+            output = get_purchases_within_range(start_date, end_date)
+            display_output(output, f"Purchases from {start_date} to {end_date}")
+
+        elif "invoice info" in response_text:
+            output = get_invoice_info()
+            display_output(output, "Invoice Info")
+
+        elif "format date" in response_text:
+            date_to_format = "2024-12-31"  # Example date
+            output = format_date(date_to_format)
+            display_output(output, f"Formatted Date: {output}")
+
+        else:
+            st.write("No recognized visualization or text command in the response.")
 
 # Load the index for use in the chat engine
 index = load_data()
@@ -378,4 +443,7 @@ else:
             st.session_state.messages.append(message)
 
         # Pass the response to render_visualization for future enhancements
-        render_visualization({"text": response_stream.response, "metadata": response_stream.metadata})
+        render_visualization({
+            "text": response_stream.response["text"],
+            "visualization": response_stream.response.get("visualization")
+        })
