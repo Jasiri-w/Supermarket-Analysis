@@ -1,3 +1,4 @@
+from datetime import datetime, date
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader
 import matplotlib.pyplot as plt
@@ -306,6 +307,13 @@ def render_visualization(llm_response):
 
 # Load the index for use in the chat engine
 index = load_data()
+
+# Initialize session state for date inputs
+if 'start_date' not in st.session_state:
+    st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
+if 'end_date' not in st.session_state:
+    st.session_state.end_date = datetime.now().date()
+
 
 if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
     st.session_state.chat_engine = index.as_chat_engine(
