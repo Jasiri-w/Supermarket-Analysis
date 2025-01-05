@@ -115,6 +115,7 @@ def load_data():
     Settings.llm = OpenAI(
         model="gpt-4o-mini",
         temperature=0.0,  # Ensure deterministic, fact-based responses
+        response_format={ "type": "json_object" },
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in analyzing sales, product, and marketing information. Your responses must adhere to the following structured format to ensure compatibility with the rendering function:
             Key Response Format Instructions:
