@@ -15,7 +15,7 @@ st.set_page_config(
 
 
 @st.cache_data
-def load_data():
+def load_sales_data():
     payment_query = "SELECT datein, amount, custid as customer_id FROM payment;"
     df = fetch_data(payment_query)
     df = preprocess_data(df)
@@ -24,7 +24,7 @@ def load_data():
     return df, customers_df
 
 # Load and preprocess data
-df, customers_df = load_data()
+df, customers_df = load_sales_data()
 # Initialize session state for date inputs
 if 'start_date' not in st.session_state:
     st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()

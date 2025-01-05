@@ -17,7 +17,7 @@ from pages.Customer_Relationship_Manager import (
     get_top_product,
 )
 from pages.Sales_Trend_Analysis import (
-    load_data as load_sales_data,
+    load_sales_data,
     plot_sales_trend,
     plot_weekly_sales,
     plot_daily_sales,
