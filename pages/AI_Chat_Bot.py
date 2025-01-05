@@ -7,6 +7,19 @@ import pandas as pd
 import streamlit as st
 from utils.auth import get_authenticator
 from utils.database import fetch_data
+
+## Page Configurations must come first
+st.set_page_config(
+    page_title="AI: Chatting...",
+    page_icon=st.secrets["FAVICON"],
+    layout="wide",
+)
+# Initialize session state for date inputs
+if 'start_date' not in st.session_state:
+    st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
+if 'end_date' not in st.session_state:
+    st.session_state.end_date = datetime.now().date()
+
 from pages.Customer_Relationship_Manager import (
     get_all_customer_data,
     get_customer_by_phone,
@@ -34,12 +47,6 @@ from pages.Product_Analysis import (
     get_items_purchased_less_than_20,
     get_least_purchased_items,
     get_longest_buying_customers,
-)
-## Page Configurations must come first
-st.set_page_config(
-    page_title="AI: Chatting...",
-    page_icon=st.secrets["FAVICON"],
-    layout="wide",
 )
 
 st.title("AI Chat Bot")
@@ -307,12 +314,6 @@ def render_visualization(llm_response):
 
 # Load the index for use in the chat engine
 index = load_data()
-
-# Initialize session state for date inputs
-if 'start_date' not in st.session_state:
-    st.session_state.start_date = datetime.strptime("2000-01-01", "%Y-%m-%d").date()
-if 'end_date' not in st.session_state:
-    st.session_state.end_date = datetime.now().date()
 
 
 if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
