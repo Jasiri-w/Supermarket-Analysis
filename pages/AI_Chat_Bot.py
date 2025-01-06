@@ -118,7 +118,6 @@ def load_data():
     Settings.llm = OpenAI(
         model="gpt-4o-mini",
         temperature=0.0,  # Ensure deterministic, fact-based responses
-        response_format={ "type": "json_object" },
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
 
@@ -448,8 +447,6 @@ else:
                 st.sidebar.success("Cache cleared successfully.")
             st.write("Session State:", st.session_state)
             st.write("Model System Prompt:", Settings.llm.system_prompt)
-            st.write("Model System Response Format:", Settings.llm.response_format)
-
     # Handle user input
     if prompt := st.chat_input("What is up?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
