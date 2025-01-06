@@ -171,8 +171,8 @@ def load_data():
                 "visualization": {
                     "type": "sales_trend",
                     "data_params": {
-                    "start_date": "2024-12-01",
-                    "end_date": "2024-12-31"
+                        "start_date": "2024-12-01",
+                        "end_date": "2024-12-31"
                     }
                 }
             }
@@ -466,12 +466,12 @@ else:
             st.session_state.messages.append(message)
 
         # Pass the response to render_visualization for future enhancements
-        if debug_mode:
-            st.write("Response:", response)
-            st.write("Response Stream Response:", response_text)
-
-
+        try:
+            vis = json.loads(response.response)["visualization"]
+        except Exception:
+            vis = None
+            
         render_visualization({
             "text": response_text,
-            "visualization": json.loads(response.response)("visualization")
+            "visualization": vis
         })
