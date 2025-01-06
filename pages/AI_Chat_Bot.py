@@ -462,7 +462,7 @@ else:
             st.write_stream(response_generator())
 
             # Append the assistant's response to the chat history
-            message = {"role": "assistant", "content": response.response}
+            message = {"role": "assistant", "content": response_text}
             st.session_state.messages.append(message)
 
         # Pass the response to render_visualization for future enhancements
@@ -470,7 +470,7 @@ else:
             vis = json.loads(response.response)["visualization"]
         except Exception:
             vis = None
-            
+
         render_visualization({
             "text": response_text,
             "visualization": vis
