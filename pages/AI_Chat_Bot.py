@@ -7,6 +7,7 @@ import matplotlib.pyplot as plt
 import openai
 import pandas as pd
 import streamlit as st
+import time
 from utils.auth import get_authenticator
 from utils.database import fetch_data
 
@@ -456,8 +457,9 @@ else:
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
             response = st.session_state.chat_engine.chat(prompt)
-            response_stream = io.StringIO(response.response)
-            st.write_stream(response_stream.response_gen)
+            response_text = json.loads(response.response)["text"]
+            response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
+            st.write_stream(response_generator())
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response.response}
@@ -466,10 +468,10 @@ else:
         # Pass the response to render_visualization for future enhancements
         if debug_mode:
             st.write("Response:", response)
-            st.write("Response Stream Response:", response_stream)
+            st.write("Response Stream Response:", response_text)
 
 
         render_visualization({
-            "text": json.loads(response.response)["text"],
+            "text": response_text,
             "visualization": json.loads(response.response)("visualization")
         })
