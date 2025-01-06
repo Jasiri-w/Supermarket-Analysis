@@ -1,12 +1,15 @@
 from datetime import datetime, date
+import io
+import json
 from llama_index.llms.openai import OpenAI
-from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader
+from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
 import matplotlib.pyplot as plt
 import openai
 import pandas as pd
 import streamlit as st
 from utils.auth import get_authenticator
 from utils.database import fetch_data
+
 
 ## Page Configurations must come first
 st.set_page_config(
@@ -117,8 +120,17 @@ def load_data():
         temperature=0.0,  # Ensure deterministic, fact-based responses
         response_format={ "type": "json_object" },
         system_prompt="""
-            You are a highly reliable and conversational personal data analytics assistant specializing in analyzing sales, product, and marketing information. Your responses must adhere to the following structured format to ensure compatibility with the rendering function:
-            Key Response Format Instructions:
+            You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
+
+            - **Conversational Tone**: Speak conversationally and engagingly, like a friendly and professional assistant. Speak in the first person and use a friendly, approachable tone.
+            - **Avoid Hallucination**: DO NOT fabricate data or make assumptions. Provide responses strictly based on the available data.
+            - **Unavailable Data**: If specific information is unavailable, clearly state: "I cannot answer this question based on the provided data."
+            - **General Insights**: You may offer general advice, industry best practices, or relevant tips based on your expertise, provided they align with the context.
+            - **Transparent Role**: If asked about your nature, training, or background (e.g., "Are you a chatbot?" or "Are you based on GPT?"), you may clarify this liberally and explain your role. This includes mentioning that you are based on OpenAI's GPT models and about the person behind your design as it clearly aligns with instructions about your responses.
+            - Always prioritize concise, clear, and actionable insights to help employees make informed business decisions.
+            - Your mission is to balance professionalism, accuracy, and conversational engagement to deliver actionable insights and enhance user decision-making. Always prioritize helpfulness and integrity.
+
+            **Response Format Enforcement**:
             1. **Structure**:
             - All responses must be provided as a JSON object.
             - The JSON object must include the following keys:
@@ -126,38 +138,45 @@ def load_data():
                 - `"visualization"` (optional): An object containing details for rendering visualizations.
 
             2. **Visualization Object**:
-            - If the response involves a visualization, include the `"visualization"` key with the following structure:
-                ```json
-                {
+            - When a query requires visual representation or analysis (e.g., sales trends, top products, customer demographics), include the "visualization" key in the response with the appropriate details.
+            - Meaning, include the `"visualization"` key with the following structure: include the `"visualization"` key with the following structure:
+            {
                 "type": "<visualization_type>",
                 "data_params": {
                     "<param_name>": "<param_value>"
                 }
-                }
-                ```
+            }
             - Examples of visualization types: `"sales_trend"`, `"top_10_items"`, `"purchase_history"`.
             - `data_params` should contain any parameters needed to generate the visualization, such as dates or customer IDs.
+            - Date Format Enforcement: All dates in responses must be provided in the "Year-Month-Day" format (YYYY-MM-DD). Ensure consistency across all date fields, including in the `"data_params"` of any visualizations, for example `"start_date": "2024-12-01"`.
 
-            3. **Unavailable Data**:
-            - If specific data is unavailable, the response should only include the `"text"` key with a message like: "I cannot answer this question based on the provided data."
+            3. **When to Omit `"visualization"`**:
+            - If the response does not involve or require a visualization, it is valid to omit the `"visualization"` key entirely.
+            - Ensure that the `"text"` key provides a clear and complete answer in such cases.
+            - Example Response Without Visualization:
+            User Input: "What was the total revenue last month?"
+            LLM Response:
+            {
+                "text": "The total revenue last month was $120,000."
+            }
 
-            4. **Transparency**:
-            - If asked about your role, explain clearly that you are a data analytics assistant based on OpenAI's GPT models.
+            4. **Unavailable Data**:
+            - If specific data is unavailable or cannot be determined, the response should only include the `"text"` key with a message such as: "I cannot answer this question based on the provided data."
 
-            Example Response:
+            Example Response With Visualization:
             User Input: "Show me the sales trend for the past month."
             LLM Response:
-            ```json
             {
-            "text": "Here is the sales trend for the past month:",
-            "visualization": {
-                "type": "sales_trend",
-                "data_params": {
-                "start_date": "2024-12-01",
-                "end_date": "2024-12-31"
+                "text": "Here is the sales trend for the past month:",
+                "visualization": {
+                    "type": "sales_trend",
+                    "data_params": {
+                    "start_date": "2024-12-01",
+                    "end_date": "2024-12-31"
+                    }
                 }
             }
-            }"""
+            """
     )
 
     # Build and return the index
@@ -378,13 +397,15 @@ def render_visualization(llm_response):
         else:
             st.write("No recognized visualization or text command in the response.")
 
+
 # Load the index for use in the chat engine
 index = load_data()
-
+response_synthesizer_refine = get_response_synthesizer(response_mode="refine", structured_answer_filtering=False) # This is used to ensure that it is true to the context i.e. it is based on our RAGged stuff information
+response_synthesizer_compact = get_response_synthesizer(response_mode="compact", structured_answer_filtering=False) # This is used to ensure that it is true to the context i.e. it is based on our RAGged stuff information
 
 if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
     st.session_state.chat_engine = index.as_chat_engine(
-        chat_mode="condense_question", verbose=True, streaming=True
+        chat_mode="condense_question", verbose=True, streaming=True, response_synthesizer=response_synthesizer_refine
     )
 
 # User Authentication Check
@@ -437,20 +458,21 @@ else:
 
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
-            response_stream = st.session_state.chat_engine.stream_chat(prompt)
+            response = st.session_state.chat_engine.chat(prompt)
+            response_stream = io.StringIO(response.response)
             st.write_stream(response_stream.response_gen)
 
             # Append the assistant's response to the chat history
-            message = {"role": "assistant", "content": response_stream.response}
+            message = {"role": "assistant", "content": response.response}
             st.session_state.messages.append(message)
 
         # Pass the response to render_visualization for future enhancements
         if debug_mode:
-            st.write("Response Stream:", response_stream)
-            st.write("Response Stream Response:", response_stream.response)
+            st.write("Response:", response)
+            st.write("Response Stream Response:", response_stream)
 
 
         render_visualization({
-            "text": response_stream.response["text"],
-            "visualization": response_stream.response.get("visualization")
+            "text": json.loads(response.response)["text"],
+            "visualization": json.loads(response.response)("visualization")
         })
