@@ -143,6 +143,7 @@ def load_data():
         ) 
         for key, value in function_registry.items()
     ]
+    st.write("Functions in my registry" + function_registry_docs)
     intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs.\n")
     
     all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
