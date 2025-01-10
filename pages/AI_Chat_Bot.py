@@ -293,31 +293,30 @@ def render_visualization(llm_response):
     response_text = llm_response.get("text", "")
     visualization = llm_response.get("visualization", {})
 
-    # Display text response
-    st.write(response_text)
 
     # Handle visualizations
-    if visualization:
-        vis_type = visualization.get("type")
-        data_params = visualization.get("data_params", {})
+    with st.chat_message("assistant"):
+        if visualization:
+            vis_type = visualization.get("type")
+            data_params = visualization.get("data_params", {})
 
-        # Find and execute the function
-        visualization_function = function_registry.get(vis_type)
-        if visualization_function:
-            try:
-                output = visualization_function(**data_params)
-                if isinstance(output, pd.DataFrame):
-                    st.dataframe(output)
-                elif isinstance(output, plt.Figure):
-                    st.pyplot(output)
-                else:
-                    st.write(output)
-            except Exception as e:
-                st.error(f"Error executing {vis_type}: {e}")
+            # Find and execute the function
+            visualization_function = function_registry.get(vis_type)
+            if visualization_function:
+                try:
+                    output = visualization_function(**data_params)
+                    if isinstance(output, pd.DataFrame):
+                        st.dataframe(output)
+                    elif isinstance(output, plt.Figure):
+                        st.pyplot(output)
+                    else:
+                        st.write(output)
+                except Exception as e:
+                    st.error(f"Error executing {vis_type}: {e}")
+            else:
+                st.error(f"Visualization type '{vis_type}' not recognized.")
         else:
-            st.error(f"Visualization type '{vis_type}' not recognized.")
-    else:
-        st.write("No visualization requested.")
+            st.write("No visualization requested.")
 
 
 
