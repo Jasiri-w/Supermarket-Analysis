@@ -408,14 +408,17 @@ if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
         chat_mode="condense_question", verbose=True, streaming=True, response_synthesizer=response_synthesizer_refine
     )
 
-# User Authentication Check
-if 'authentication_status' not in st.session_state:
-    st.session_state['authentication_status'] = False
+# Authenticate user
+authenticator = get_authenticator()
+authenticator.login(key='LoginCRM',location= 'main')
+authentication_status = st.session_state['authentication_status']
+name = st.session_state['name']
+username = st.session_state['username']
 
-if not st.session_state['authentication_status']:
-    get_authenticator().login(key='LoginCRM', location='main')
-    st.warning("Please enter your login credentials to access the CRM.")
-else:
+if authentication_status:
+    st.success(f"Welcome, {name}!")
+    st.sidebar.success("You are logged in.")
+
     # OpenAI Chat Bot
     openai.api_key = st.secrets["OPENAI_API_KEY"]
 
@@ -475,3 +478,7 @@ else:
             "text": response_text,
             "visualization": vis
         })
+elif authentication_status is False:
+    st.error("Invalid username or password.")
+elif authentication_status is None:
+    st.warning("Please enter your login credentials to access the AI Chat Bot.")
