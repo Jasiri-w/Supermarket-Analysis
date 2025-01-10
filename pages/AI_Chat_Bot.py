@@ -122,60 +122,50 @@ def load_data():
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
 
+            ### Key Capabilities:
             - **Conversational Tone**: Speak conversationally and engagingly, like a friendly and professional assistant. Speak in the first person and use a friendly, approachable tone.
             - **Avoid Hallucination**: DO NOT fabricate data or make assumptions. Provide responses strictly based on the available data.
             - **Unavailable Data**: If specific information is unavailable, clearly state: "I cannot answer this question based on the provided data."
             - **General Insights**: You may offer general advice, industry best practices, or relevant tips based on your expertise, provided they align with the context.
-            - **Transparent Role**: If asked about your nature, training, or background (e.g., "Are you a chatbot?" or "Are you based on GPT?"), you may clarify this liberally and explain your role. This includes mentioning that you are based on OpenAI's GPT models and about the person behind your design as it clearly aligns with instructions about your responses.
-            - Always prioritize concise, clear, and actionable insights to help employees make informed business decisions.
-            - Your mission is to balance professionalism, accuracy, and conversational engagement to deliver actionable insights and enhance user decision-making. Always prioritize helpfulness and integrity.
+            - **Transparent Role**: If asked about your nature, training, or background, you may clarify and explain your role liberally, including mentioning you are based on OpenAI's GPT models.
+            - **Response Format**: All responses are JSON objects containing a `"text"` field summarizing the response and an optional `"visualization"` field if visualization is applicable.
+            - **Consistency**: Always ensure the data format, tone, and style match the structured requirements provided.
 
-            **Response Format Enforcement**:
-            1. **Structure**:
-            - All responses must be provided as a JSON object.
-            - The JSON object must include the following keys:
-                - `"text"`: A string summarizing the response in plain language.
-                - `"visualization"` (optional): An object containing details for rendering visualizations.
+            ### Function: `get_daily_customer_most_purchased`
+            **Purpose**: This function identifies the most frequently purchased product for each daily customer in the database. Daily customers are individuals without a credit account but with a purchase history identified by the phone number used during transactions. The function ranks products by purchase frequency for each phone number and returns the top item along with relevant customer details.
 
-            2. **Visualization Object**:
-            - When a query requires visual representation or analysis (e.g., sales trends, top products, customer demographics), include the "visualization" key in the response with the appropriate details.
-            - Meaning, include the `"visualization"` key with the following structure: include the `"visualization"` key with the following structure:
-            {
-                "type": "<visualization_type>",
-                "data_params": {
-                    "<param_name>": "<param_value>"
-                }
-            }
-            - Examples of visualization types: `"sales_trend"`, `"top_10_items"`, `"purchase_history"`.
-            - `data_params` should contain any parameters needed to generate the visualization, such as dates or customer IDs.
-            - Date Format Enforcement: All dates in responses must be provided in the "Year-Month-Day" format (YYYY-MM-DD). Ensure consistency across all date fields, including in the `"data_params"` of any visualizations, for example `"start_date": "2024-12-01"`.
+            **Inputs**: None explicitly required by the function. However, the dataset includes:
+            - Customer phone numbers for identification.
+            - Product purchase records with counts aggregated for each customer.
 
-            3. **When to Omit `"visualization"`**:
-            - If the response does not involve or require a visualization, it is valid to omit the `"visualization"` key entirely.
-            - Ensure that the `"text"` key provides a clear and complete answer in such cases.
-            - Example Response Without Visualization:
-            User Input: "What was the total revenue last month?"
+            **Outputs**:
+            - A table containing:
+            - `phone`: The customer's phone number.
+            - `productno`: The product ID of the most purchased item.
+            - `most_purchased_item`: Description of the top product.
+            - `purchase_count`: Number of times the product was purchased.
+            - Additional customer information, including name, address, email, credit limit, balance, loyalty points, and other attributes.
+
+            **Usage Example**:
+            User Input: "What is the most purchased product for daily customers?"
             LLM Response:
             {
-                "text": "The total revenue last month was $120,000."
-            }
-
-            4. **Unavailable Data**:
-            - If specific data is unavailable or cannot be determined, the response should only include the `"text"` key with a message such as: "I cannot answer this question based on the provided data."
-
-            Example Response With Visualization:
-            User Input: "Show me the sales trend for the past month."
-            LLM Response:
-            {
-                "text": "Here is the sales trend for the past month:",
+                "text": "Here are the most purchased products for daily customers:",
                 "visualization": {
-                    "type": "sales_trend",
-                    "data_params": {
-                        "start_date": "2024-12-01",
-                        "end_date": "2024-12-31"
-                    }
+                    "type": "daily_customer_most_purchased",
+                    "data_params": {}
                 }
             }
+
+            ### General Guidelines:
+            1. **Structure**: All responses must follow the JSON format with `text` and optional `visualization` keys.
+            2. **Visualization Requirements**: Include `data_params` with relevant filters (e.g., date range, customer phone).
+            3. **Unavailable Data**: Respond clearly if data cannot be determined or accessed.
+            4. **Accuracy First**: Strictly base answers on the data provided or generated by the defined functions.
+
+            ### Mission:
+            Your mission is to deliver actionable insights, technical accuracy, and a user-friendly conversational experience to empower decision-making within the company.
+
             """
     )
 
@@ -254,148 +244,59 @@ def render_visualization(llm_response):
     Render visualizations based on the LLM response. Utilizes all imported functions.
     :param llm_response: Dictionary with keys 'text' and optional 'visualization'.
     """
-    response_text = llm_response.get("text", "").lower()
+    # Function registry
+    function_registry = {
+        "sales_trend": plot_sales_trend,
+        "top_10_items": get_top_10_items,
+        "customer_data": get_customer_by_phone,
+        "purchase_history": get_purchase_history_by_phone,
+        "payment_history": get_payment_history_by_phone,
+        "weekly_sales": plot_weekly_sales,
+        "daily_sales": plot_daily_sales,
+        "monthly_sales": plot_monthly_sales_with_rolling_avg,
+        "invoice_info": get_invoice_info,
+        "credit_account_most_purchased": get_credit_account_most_purchased,
+        "items_purchased_less_than_20": get_items_purchased_less_than_20,
+        "least_purchased_items": get_least_purchased_items,
+        "longest_buying_customers": get_longest_buying_customers,
+        "highest_daily_customers": get_highest_daily_customers,
+        "daily_customer_most_purchased": get_daily_customer_most_purchased,
+        "purchases_within_range": get_purchases_within_range,
+        "all_customer_data": get_all_customer_data,
+        "top_10_items_by_phone": get_top_10_items_by_phone,
+        "products": get_products,
+        "top_product": get_top_product,
+    }
+
+    response_text = llm_response.get("text", "")
     visualization = llm_response.get("visualization", {})
 
-    # Helper function to display Streamlit visualizations or outputs
-    def display_output(output, title="Result"):
-        if isinstance(output, pd.DataFrame):
-            st.write(title)
-            st.dataframe(output)
-        elif isinstance(output, str):
-            st.write(title)
-            st.text(output)
-        elif isinstance(output, plt.Figure):
-            st.write(title)
-            st.pyplot(output)
-        else:
-            st.write(f"{title}: {output}")
+    # Display text response
+    st.write(response_text)
 
-    # Handle visualization rendering
+    # Handle visualizations
     if visualization:
         vis_type = visualization.get("type")
         data_params = visualization.get("data_params", {})
 
-        if vis_type == "sales_trend":
-            start_date = data_params.get("start_date")
-            end_date = data_params.get("end_date")
-            output = plot_sales_trend(start_date=start_date, end_date=end_date)
-            display_output(output, "Sales Trend")
-
-        elif vis_type == "top_10_items":
-            output = get_top_10_items()
-            display_output(output, "Top 10 Items")
-
-        elif vis_type == "customer_data":
-            phone = data_params.get("phone")
-            output = get_customer_by_phone(phone)
-            display_output(output, f"Customer Data for Phone: {phone}")
-
-        elif vis_type == "purchase_history":
-            phone = data_params.get("phone")
-            output = get_purchase_history_by_phone(phone)
-            display_output(output, f"Purchase History for Phone: {phone}")
-
-        elif vis_type == "payment_history":
-            phone = data_params.get("phone")
-            output = get_payment_history_by_phone(phone)
-            display_output(output, f"Payment History for Phone: {phone}")
-
-        elif vis_type == "weekly_sales":
-            output = plot_weekly_sales()
-            display_output(output, "Weekly Sales")
-
-        elif vis_type == "daily_sales":
-            output = plot_daily_sales()
-            display_output(output, "Daily Sales")
-
-        elif vis_type == "monthly_sales":
-            output = plot_monthly_sales_with_rolling_avg()
-            display_output(output, "Monthly Sales with Rolling Average")
-
-        elif vis_type == "invoice_info":
-            output = get_invoice_info()
-            display_output(output, "Invoice Info")
-
-        elif vis_type == "credit_account_most_purchased":
-            output = get_credit_account_most_purchased()
-            display_output(output, "Credit Account Most Purchased Items")
-
-        elif vis_type == "items_purchased_less_than_20":
-            output = get_items_purchased_less_than_20()
-            display_output(output, "Items Purchased Less than 20")
-
-        elif vis_type == "least_purchased_items":
-            output = get_least_purchased_items()
-            display_output(output, "Least Purchased Items")
-
-        elif vis_type == "longest_buying_customers":
-            output = get_longest_buying_customers()
-            display_output(output, "Longest Buying Customers")
-
-        elif vis_type == "highest_daily_customers":
-            output = get_highest_daily_customers()
-            display_output(output, "Highest Daily Customers")
-
-        elif vis_type == "daily_customer_most_purchased":
-            output = get_daily_customer_most_purchased()
-            display_output(output, "Daily Customer Most Purchased Items")
-
+        # Find and execute the function
+        visualization_function = function_registry.get(vis_type)
+        if visualization_function:
+            try:
+                output = visualization_function(**data_params)
+                if isinstance(output, pd.DataFrame):
+                    st.dataframe(output)
+                elif isinstance(output, plt.Figure):
+                    st.pyplot(output)
+                else:
+                    st.write(output)
+            except Exception as e:
+                st.error(f"Error executing {vis_type}: {e}")
         else:
-            st.write(f"Unknown visualization type: {vis_type}")
-
+            st.error(f"Visualization type '{vis_type}' not recognized.")
     else:
-        # Process response_text for keyword-based triggers
-        if "all customer data" in response_text:
-            output = get_all_customer_data()
-            display_output(output, "All Customer Data")
+        st.write("No visualization requested.")
 
-        elif "customer by phone" in response_text:
-            phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-            output = get_customer_by_phone(phone)
-            display_output(output, f"Customer Data for Phone: {phone}")
-
-        elif "top 10 items by phone" in response_text:
-            phone = llm_response.get("metadata", {}).get("phone", "1234567890")
-            output = get_top_10_items_by_phone(phone)
-            display_output(output, f"Top 10 Items for Phone: {phone}")
-
-        elif "top product" in response_text:
-            output = get_top_product()
-            display_output(output, "Top Product")
-
-        elif "sales trend" in response_text:
-            output = plot_sales_trend()
-            display_output(output, "Sales Trend")
-
-        elif "weekly sales" in response_text:
-            output = plot_weekly_sales()
-            display_output(output, "Weekly Sales")
-
-        elif "daily sales" in response_text:
-            output = plot_daily_sales()
-            display_output(output, "Daily Sales")
-
-        elif "monthly sales" in response_text:
-            output = plot_monthly_sales_with_rolling_avg()
-            display_output(output, "Monthly Sales with Rolling Average")
-
-        elif "purchases within range" in response_text:
-            start_date, end_date = "2024-01-01", "2024-12-31"  # Example date range
-            output = get_purchases_within_range(start_date, end_date)
-            display_output(output, f"Purchases from {start_date} to {end_date}")
-
-        elif "invoice info" in response_text:
-            output = get_invoice_info()
-            display_output(output, "Invoice Info")
-
-        elif "format date" in response_text:
-            date_to_format = "2024-12-31"  # Example date
-            output = format_date(date_to_format)
-            display_output(output, f"Formatted Date: {output}")
-
-        else:
-            st.write("No recognized visualization or text command in the response.")
 
 
 # Load the index for use in the chat engine
@@ -478,6 +379,7 @@ if authentication_status:
             "text": response_text,
             "visualization": vis
         })
+        
 elif authentication_status is False:
     st.error("Invalid username or password.")
 elif authentication_status is None:
