@@ -132,10 +132,20 @@ def load_data():
     reader = SimpleDirectoryReader(input_dir="./data", recursive=True)
     static_docs = reader.load_data()
 
-    # Combine static and dynamic documents
     dynamic_docs = fetch_dynamic_data()
-    function_registry_docs = [Document(text=f"{key} : {value} : {value.__doc__}") for key, value in function_registry.items()]
-    all_documents = static_docs + dynamic_docs + function_registry_docs
+
+    function_registry_docs = [
+        Document(
+            text=f"Function Registry - {key}:\n"
+                f"Name: {value}\n"
+                f"Description: {value.__doc__}\n"
+                f"Purpose: {value.__doc__.splitlines()[0] if value.__doc__ else 'No description provided'}\n"
+        ) 
+        for key, value in function_registry.items()
+    ]
+    intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs.\n")
+    
+    all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
 
     if debug_mode:
         print(f"Static Documents: {static_docs}")
@@ -173,7 +183,7 @@ def load_data():
                 }
             }
 
-            If the query does **not** match any function in the registry and no relevant data is available, you should respond with:
+            In the unlikely case that the query does **not** match any function in the registry and no relevant data is available, you should respond with:
             {
                 "text": "I cannot answer this question based on the provided data or available functions."
             }
