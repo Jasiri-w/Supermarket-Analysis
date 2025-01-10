@@ -391,13 +391,7 @@ if authentication_status:
             message = {"role": "assistant", "content": response_text}
             st.session_state.messages.append(message)
 
-        # Pass the response to render_visualization for future enhancements
-        try:
-            vis = json.loads(response.response)["visualization"]
-        except Exception:
-            vis = None
-
-        render_visualization(json.loads(response.response))
+            render_visualization(json.loads(response.response))
         
 elif authentication_status is False:
     st.error("Invalid username or password.")
