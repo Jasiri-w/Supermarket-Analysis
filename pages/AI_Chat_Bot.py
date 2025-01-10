@@ -134,6 +134,9 @@ def load_data():
 
     dynamic_docs = fetch_dynamic_data()
 
+    st.write(function_registry)
+    st.write([value.__doc__ for key, value in function_registry.items()])
+
     function_registry_docs = [
         Document(
             text=f"Function Registry - {key}:\n"
