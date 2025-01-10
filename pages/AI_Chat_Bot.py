@@ -64,26 +64,26 @@ debug_mode = st.secrets["DEBUG_MODE"]
 
 # Function registry
 function_registry = {
-    "sales_trend": plot_sales_trend,
-    "top_10_items": get_top_10_items,
-    "customer_data": get_customer_by_phone,
-    "purchase_history": get_purchase_history_by_phone,
-    "payment_history": get_payment_history_by_phone,
-    "weekly_sales": plot_weekly_sales,
-    "daily_sales": plot_daily_sales,
-    "monthly_sales": plot_monthly_sales_with_rolling_avg,
-    "invoice_info": get_invoice_info,
-    "credit_account_most_purchased": get_credit_account_most_purchased,
-    "items_purchased_less_than_20": get_items_purchased_less_than_20,
-    "least_purchased_items": get_least_purchased_items,
-    "longest_buying_customers": get_longest_buying_customers,
-    "highest_daily_customers": get_highest_daily_customers,
-    "daily_customer_most_purchased": get_daily_customer_most_purchased,
-    "purchases_within_range": get_purchases_within_range,
-    "all_customer_data": get_all_customer_data,
-    "top_10_items_by_phone": get_top_10_items_by_phone,
-    "products": get_products,
-    "top_product": get_top_product,
+    "plot_sales_trend": plot_sales_trend,
+    "get_top_10_items": get_top_10_items,
+    "get_customer_by_phone": get_customer_by_phone,
+    "get_purchase_history_by_phone": get_purchase_history_by_phone,
+    "get_payment_history_by_phone": get_payment_history_by_phone,
+    "plot_weekly_sales": plot_weekly_sales,
+    "plot_daily_sales": plot_daily_sales,
+    "plot_monthly_sales_with_rolling_avg": plot_monthly_sales_with_rolling_avg,
+    "get_invoice_info": get_invoice_info,
+    "get_credit_account_most_purchased": get_credit_account_most_purchased,
+    "get_items_purchased_less_than_20": get_items_purchased_less_than_20,
+    "get_least_purchased_items": get_least_purchased_items,
+    "get_longest_buying_customers": get_longest_buying_customers,
+    "get_highest_daily_customers": get_highest_daily_customers,
+    "get_daily_customer_most_purchased": get_daily_customer_most_purchased,
+    "get_purchases_within_range": get_purchases_within_range,
+    "get_all_customer_data": get_all_customer_data,
+    "get_top_10_items_by_phone": get_top_10_items_by_phone,
+    "get_products": get_products,
+    "get_top_product": get_top_product,
 }
 
 
@@ -139,10 +139,8 @@ def load_data():
 
     function_registry_docs = [
         Document(
-            text=f"Function Registry - {key}:\n"
-                f"Name: {value}\n"
+            text=f"Function Registry Name - {key}:\n"
                 f"Description: {value.__doc__}\n"
-                f"Purpose: {value.__doc__.splitlines()[0] if value.__doc__ else 'No description provided'}\n"
         ) 
         for key, value in function_registry.items()
     ]
@@ -176,6 +174,7 @@ def load_data():
             - **Text Response**: The text response should strictly provide factual information based on the available data. You should avoid hallucination and provide a clear, direct answer to the user's question. If the query involves a relevant function in the registry, you should **always** include the corresponding visualization, even if the query does not explicitly provide enough context for the function.
 
             - **Visualization Response**: If there is a function in the function registry that relates to the user’s query, you should generate data for the visualization response. Even if the context in the query does not provide complete details, assume that the visualization function is smarter than the text logic and can generate useful data. The visualizer should be trusted to do its job, even if the LLM cannot fully reason about the complete context. The system will use the visualizer’s output to enrich the response.
+            - Once you have found a suitable function, use the exact function as named in the registry in the type field of the visualization object e.g. "plot_sales_trend"
 
             #### Example:
             User: "Can you provide me with a summary of the most purchased products by daily customers?"
