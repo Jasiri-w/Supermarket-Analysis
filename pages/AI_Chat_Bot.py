@@ -375,10 +375,7 @@ if authentication_status:
         except Exception:
             vis = None
 
-        render_visualization({
-            "text": response_text,
-            "visualization": vis
-        })
+        render_visualization(json.loads(response.response))
         
 elif authentication_status is False:
     st.error("Invalid username or password.")
