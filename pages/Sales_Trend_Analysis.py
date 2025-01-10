@@ -9,6 +9,14 @@ from utils.auth import get_authenticator
 
 @st.cache_data
 def load_sales_data():
+    """
+    Load sales data from the database and preprocess it.
+
+    Returns:
+        tuple: A tuple containing:
+            - df (pd.DataFrame): Preprocessed sales data.
+            - customers_df (pd.DataFrame): Customer data.
+    """
     payment_query = "SELECT datein, amount, custid as customer_id FROM payment;"
     df = fetch_data(payment_query)
     df = preprocess_data(df)
@@ -17,8 +25,16 @@ def load_sales_data():
     return df, customers_df
 
 
-# Function to plot sales trend with interactivity
 def plot_sales_trend(df):
+    """
+    Plot the monthly sales trend.
+
+    Args:
+        df (pd.DataFrame): The sales data.
+
+    Returns:
+        None: Displays a plot of the monthly sales trend.
+    """
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
     st.subheader("Monthly Sales Trend")
     df_monthly = df[['amount']].resample('MS').sum()
@@ -31,8 +47,17 @@ def plot_sales_trend(df):
     ax.grid(True)
     st.pyplot(fig)
 
-# Function to plot weekly sales trend with interactivity
+
 def plot_weekly_sales(df):
+    """
+    Plot the weekly sales trend.
+
+    Args:
+        df (pd.DataFrame): The sales data.
+
+    Returns:
+        None: Displays a plot of the weekly sales trend.
+    """
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
 
     st.subheader("Weekly Sales Trend")
@@ -46,8 +71,17 @@ def plot_weekly_sales(df):
     ax.grid(True)
     st.pyplot(fig)
 
-# Function to plot daily sales trend with interactivity
+
 def plot_daily_sales(df):
+    """
+    Plot the daily sales trend.
+
+    Args:
+        df (pd.DataFrame): The sales data.
+
+    Returns:
+        None: Displays a plot of the daily sales trend.
+    """
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
 
     st.subheader("Daily Sales Trend")
@@ -61,8 +95,17 @@ def plot_daily_sales(df):
     ax.grid(True)
     st.pyplot(fig)
 
-# Function to plot monthly sales with rolling average with interactivity
+
 def plot_monthly_sales_with_rolling_avg(df):
+    """
+    Plot the monthly sales with a rolling average.
+
+    Args:
+        df (pd.DataFrame): The sales data.
+
+    Returns:
+        None: Displays a plot of the monthly sales with a rolling average.
+    """
     df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
 
     st.subheader("Monthly Sales with Rolling Average")
@@ -79,8 +122,19 @@ def plot_monthly_sales_with_rolling_avg(df):
     ax.grid(True)
     st.pyplot(fig)
 
+
 @st.cache_data
 def get_purchases_within_range(start_date=st.session_state.start_date, end_date=st.session_state.end_date):
+    """
+    Fetch purchases within a specified date range.
+
+    Args:
+        start_date (datetime.date): The start date of the range.
+        end_date (datetime.date): The end date of the range.
+
+    Returns:
+        pd.DataFrame: DataFrame containing purchases within the specified date range.
+    """
     query = f'''
     SELECT
         p.paymentid,
@@ -96,13 +150,22 @@ def get_purchases_within_range(start_date=st.session_state.start_date, end_date=
     JOIN customers c ON p.custid = c.custid
     WHERE
         p.datein BETWEEN \'{st.session_state.start_date}\' AND \'{st.session_state.end_date}\';
-    
     '''
 
     return fetch_data(query)
 
+
 @st.cache_data
 def get_invoice_info(invoice_number):
+    """
+    Fetch information for a specific invoice.
+
+    Args:
+        invoice_number (str): The invoice number.
+
+    Returns:
+        pd.DataFrame: DataFrame containing information about the specified invoice.
+    """
     query = f'''
     SELECT
         (td.saleprice * td.quantity) AS total,
@@ -120,16 +183,31 @@ def get_invoice_info(invoice_number):
         JOIN product p ON td.productno = p.productno
     WHERE
      ti.invoiceno = \'{invoice_number}\';
-    
     '''
 
     return fetch_data(query)
 
+
 def format_date(date):
+    """
+    Format a date to a readable string.
+
+    Args:
+        date (datetime.date): The date to format.
+
+    Returns:
+        str: The formatted date string.
+    """
     return date.strftime("%B %d, %Y")
 
-def main():
 
+def main():
+    """
+    Main function to render the Sales Trend Analysis page.
+
+    Returns:
+        None: Renders the Streamlit page.
+    """
     st.set_page_config(
         page_title="Sales Trends",
         page_icon=st.secrets["FAVICON"],
@@ -167,7 +245,6 @@ def main():
     if st.sidebar.button('Apply Date Range'):
         st.session_state.start_date = start_date
         st.session_state.end_date = end_date
-        #st.rerun()
 
     # Adding a filter for credit accounts (customers)
     st.sidebar.markdown("## Filter by Customers")
@@ -222,4 +299,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    

@@ -5,9 +5,29 @@ from utils.models import get_recommendations
 from utils.auth import get_authenticator
 import joblib
 
-# Function to fetch all customer data including total amount spent and top purchases
 @st.cache_data
 def get_all_customer_data():
+    """
+    Fetch all customer data, including total payments, total paid amounts, and purchase information.
+    
+    Inputs:
+        None required.
+
+    Returns:
+        pd.DataFrame: A DataFrame where each row represents a customer, containing:
+            - phone: Customer's phone number.
+            - customer_name: Name of the customer.
+            - total_payments: Total number of payments made by the customer.
+            - total_paid: Total amount paid by the customer.
+            - first_payment_date: Date of the first payment.
+            - last_payment_date: Date of the last payment.
+            - total_purchases: Total number of purchases made by the customer.
+            - first_purchase_date: Date of the first recorded purchase.
+            - last_purchase_date: Date of the last recorded purchase.
+            - most_purchased_item: Name of the most frequently purchased item.
+            - most_purchased_item_count: How many times this most purchased item was bought.
+            - purchase_duration_days: The number of days between the first and last purchase.
+    """
     query = """
     WITH customer_payment_totals AS (
         SELECT
@@ -104,10 +124,23 @@ def get_all_customer_data():
     """
     return fetch_data(query)
 
-
-# Function to fetch specific customer data by phone number
 @st.cache_data
 def get_customer_by_phone(phone):
+    """
+    Fetch detailed payment and purchase info for a single customer by phone number.
+    
+    Inputs:
+        phone (str): The customer's phone number.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - phone: The queried customer's phone.
+            - total_payments: How many payments the customer has made.
+            - total_spent: Total amount spent by the customer.
+            - first_payment_date: Date of the first payment.
+            - last_payment_date: Date of the last payment.
+            - payment_duration: Duration between the first and last payment in days.
+    """
     query = f"""
     WITH
     customer_payments AS (
@@ -136,9 +169,19 @@ def get_customer_by_phone(phone):
     """
     return fetch_data(query)
 
-# Function to fetch top 10 most purchased items
 @st.cache_data
 def get_top_10_items():
+    """
+    Fetch the top 10 most purchased items across all customers.
+    
+    Inputs:
+        None required.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - product_description: Description of the product.
+            - purchase_count: Number of times the product was purchased.
+    """
     query = """
     SELECT
         p.description AS product_description,
@@ -155,9 +198,19 @@ def get_top_10_items():
     """
     return fetch_data(query)
 
-# Function to fetch top 10 most purchased items for a specific customer by phone number
 @st.cache_data
 def get_top_10_items_by_phone(phone):
+    """
+    Fetch the top 10 most purchased items for a specific customer by phone number.
+    
+    Inputs:
+        phone (str): The customer's phone number.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - product_description: Description of the product.
+            - purchase_count: Number of times the product was purchased.
+    """
     query = f"""
     SELECT
         p.description AS product_description,
@@ -180,9 +233,24 @@ def get_top_10_items_by_phone(phone):
     """
     return fetch_data(query)
 
-# Function to fetch purchase history for a specific customer by phone number
 @st.cache_data
 def get_purchase_history_by_phone(phone):
+    """
+    Fetch the purchase history for a specific customer by phone number.
+    
+    Inputs:
+        phone (str): The customer's phone number.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - productno: Product number.
+            - product_description: Description of the product.
+            - sold_price: Price at which the product was sold.
+            - current_item_price: Current price of the product.
+            - purchase_quantity: Quantity of the product purchased.
+            - total: Total amount spent on the product.
+            - purchase_date: Date of the purchase.
+    """
     query = f"""
     SELECT
         td.productno,
@@ -203,9 +271,20 @@ def get_purchase_history_by_phone(phone):
     """
     return fetch_data(query)
 
-# Function to fetch payment history for a specific customer by phone number
 @st.cache_data
 def get_payment_history_by_phone(phone):
+    """
+    Fetch the payment history for a specific customer by phone number.
+    
+    Inputs:
+        phone (str): The customer's phone number.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - invoiceno: Invoice number.
+            - total_paid: Total amount paid.
+            - payment_date: Date of the payment.
+    """
     query = f"""
     SELECT
         invoiceno,
@@ -224,6 +303,20 @@ def get_payment_history_by_phone(phone):
 
 @st.cache_data
 def get_products():
+    """
+    Fetch all products with their details and purchase counts.
+    
+    Inputs:
+        None required.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - productno: Product number.
+            - description: Description of the product.
+            - saleprice: Sale price of the product.
+            - buyprice: Buy price of the product.
+            - purchase_count: Number of times the product was purchased.
+    """
     products_query = """
         SELECT
         p.productno,
@@ -246,6 +339,19 @@ def get_products():
 
 @st.cache_data
 def get_top_product(phone):
+    """
+    Fetch the top purchased product for a specific customer by phone number.
+    
+    Inputs:
+        phone (str): The customer's phone number.
+
+    Returns:
+        pd.DataFrame: Contains columns such as:
+            - productno: Product number.
+            - product_description: Description of the product.
+            - total_amount: Total amount spent on the product.
+            - purchase_count: Number of times the product was purchased.
+    """
     query = f"""
     SELECT
         td.productno,
@@ -270,9 +376,16 @@ def get_top_product(phone):
     
     return results
 
-
-# Main function to render the Streamlit page
 def main():
+    """
+    Main function to render the Streamlit page for Customer Relationship Management (CRM).
+    
+    Inputs:
+        None required.
+
+    Returns:
+        None: Renders the Streamlit page with customer data and analysis.
+    """
     st.set_page_config(
         page_title="CRM",
         page_icon=st.secrets["FAVICON"],

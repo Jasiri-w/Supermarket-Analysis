@@ -5,9 +5,14 @@ import seaborn as sns
 from utils.database import fetch_data
 from utils.auth import get_authenticator
 
-# Function to fetch credit account most purchased items
 @st.cache_data
 def get_credit_account_most_purchased():
+    """
+    Fetch the most purchased items for credit account customers.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the most purchased items for credit account customers.
+    """
     query = """
     WITH customer_purchases AS (
         SELECT
@@ -49,9 +54,14 @@ def get_credit_account_most_purchased():
     """
     return fetch_data(query)
 
-# Function to fetch daily customer most purchased items
 @st.cache_data
 def get_daily_customer_most_purchased():
+    """
+    Fetch the most purchased items for daily customers.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the most purchased items for daily customers.
+    """
     query = """
     WITH customer_purchases AS (
         SELECT
@@ -122,9 +132,14 @@ def get_daily_customer_most_purchased():
     """
     return fetch_data(query)
 
-# Function to fetch highest daily customers
 @st.cache_data
 def get_highest_daily_customers():
+    """
+    Fetch the highest daily customers based on total purchases.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the highest daily customers.
+    """
     query = """
     WITH customer_purchase_counts AS (
         SELECT
@@ -193,9 +208,14 @@ def get_highest_daily_customers():
     """
     return fetch_data(query)
 
-# Function to fetch items purchased less than 20 times
 @st.cache_data
 def get_items_purchased_less_than_20():
+    """
+    Fetch items that have been purchased less than 20 times.
+
+    Returns:
+        pd.DataFrame: DataFrame containing items purchased less than 20 times.
+    """
     query = """
     WITH product_purchases AS (
         SELECT
@@ -222,9 +242,14 @@ def get_items_purchased_less_than_20():
     """
     return fetch_data(query)
 
-# Function to fetch least purchased items
 @st.cache_data
 def get_least_purchased_items():
+    """
+    Fetch the least purchased items.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the least purchased items.
+    """
     query = """
     WITH product_purchases AS (
         SELECT
@@ -250,9 +275,14 @@ def get_least_purchased_items():
     """
     return fetch_data(query)
 
-# Function to fetch longest buying customers
 @st.cache_data
 def get_longest_buying_customers():
+    """
+    Fetch the customers with the longest buying history.
+
+    Returns:
+        pd.DataFrame: DataFrame containing the customers with the longest buying history.
+    """
     query = """
     WITH customer_purchase_details AS (
         SELECT

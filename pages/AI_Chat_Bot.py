@@ -62,6 +62,31 @@ st.write('This chatbot is created using ChatGPT.')
 debug_mode = st.secrets["DEBUG_MODE"]
 ## LlamaIndex Auxiliary Functions
 
+# Function registry
+function_registry = {
+    "sales_trend": plot_sales_trend,
+    "top_10_items": get_top_10_items,
+    "customer_data": get_customer_by_phone,
+    "purchase_history": get_purchase_history_by_phone,
+    "payment_history": get_payment_history_by_phone,
+    "weekly_sales": plot_weekly_sales,
+    "daily_sales": plot_daily_sales,
+    "monthly_sales": plot_monthly_sales_with_rolling_avg,
+    "invoice_info": get_invoice_info,
+    "credit_account_most_purchased": get_credit_account_most_purchased,
+    "items_purchased_less_than_20": get_items_purchased_less_than_20,
+    "least_purchased_items": get_least_purchased_items,
+    "longest_buying_customers": get_longest_buying_customers,
+    "highest_daily_customers": get_highest_daily_customers,
+    "daily_customer_most_purchased": get_daily_customer_most_purchased,
+    "purchases_within_range": get_purchases_within_range,
+    "all_customer_data": get_all_customer_data,
+    "top_10_items_by_phone": get_top_10_items_by_phone,
+    "products": get_products,
+    "top_product": get_top_product,
+}
+
+
 @st.cache_resource(show_spinner=True)
 def load_data():
     """
@@ -109,7 +134,8 @@ def load_data():
 
     # Combine static and dynamic documents
     dynamic_docs = fetch_dynamic_data()
-    all_documents = static_docs + dynamic_docs
+    function_registry_docs = [Document(text=f"{key} : {value} : {value.__doc__}") for key, value in function_registry.items()]
+    all_documents = static_docs + dynamic_docs + function_registry_docs
 
     if debug_mode:
         print(f"Static Documents: {static_docs}")
@@ -153,7 +179,7 @@ def load_data():
                 "text": "Here are the most purchased products for daily customers:",
                 "visualization": {
                     "type": "daily_customer_most_purchased",
-                    "data_params": {}
+                    "data_params": \{\}
                 }
             }
 
@@ -244,30 +270,6 @@ def render_visualization(llm_response):
     Render visualizations based on the LLM response. Utilizes all imported functions.
     :param llm_response: Dictionary with keys 'text' and optional 'visualization'.
     """
-    # Function registry
-    function_registry = {
-        "sales_trend": plot_sales_trend,
-        "top_10_items": get_top_10_items,
-        "customer_data": get_customer_by_phone,
-        "purchase_history": get_purchase_history_by_phone,
-        "payment_history": get_payment_history_by_phone,
-        "weekly_sales": plot_weekly_sales,
-        "daily_sales": plot_daily_sales,
-        "monthly_sales": plot_monthly_sales_with_rolling_avg,
-        "invoice_info": get_invoice_info,
-        "credit_account_most_purchased": get_credit_account_most_purchased,
-        "items_purchased_less_than_20": get_items_purchased_less_than_20,
-        "least_purchased_items": get_least_purchased_items,
-        "longest_buying_customers": get_longest_buying_customers,
-        "highest_daily_customers": get_highest_daily_customers,
-        "daily_customer_most_purchased": get_daily_customer_most_purchased,
-        "purchases_within_range": get_purchases_within_range,
-        "all_customer_data": get_all_customer_data,
-        "top_10_items_by_phone": get_top_10_items_by_phone,
-        "products": get_products,
-        "top_product": get_top_product,
-    }
-
     response_text = llm_response.get("text", "")
     visualization = llm_response.get("visualization", {})
 
@@ -306,7 +308,7 @@ response_synthesizer_compact = get_response_synthesizer(response_mode="compact",
 
 if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
     st.session_state.chat_engine = index.as_chat_engine(
-        chat_mode="condense_question", verbose=True, streaming=True, response_synthesizer=response_synthesizer_refine
+        chat_mode="condense_question", verbose=True, streaming=True
     )
 
 # Authenticate user
