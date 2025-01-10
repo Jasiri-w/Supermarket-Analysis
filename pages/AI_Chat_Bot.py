@@ -134,9 +134,6 @@ def load_data():
 
     dynamic_docs = fetch_dynamic_data()
 
-    st.write(function_registry)
-    st.write([value.__doc__ for key, value in function_registry.items()])
-
     function_registry_docs = [
         Document(
             text=f"Function Registry Name - {key}:\n"
@@ -196,7 +193,7 @@ def load_data():
             If you find that the user’s query does not provide enough context for you to directly answer it with available data, or if you cannot find an explicit match in your current context, **always** refer to the **visualization functions** in your registry. The visualizers are designed to handle scenarios that your text response may not fully address.
 
             - **Contextualization**: If relevant functions exist, trust them to generate the necessary data, even if the query does not provide all needed context. The system assumes that the visualizer will return usable data, so always execute the relevant function and return the corresponding visualization.
-
+            - You are expected to identify relevant functions from the function registry even if the user’s query is slightly varied from the function’s exact description. You should still understand that slight phrasing differences (e.g., "fetch products" vs. "get products") should be interpreted as referring to the same function.
             - **When to State Unavailability**: Only if there is **no relevant function** in the registry and **no relevant context** in memory should you state that you cannot answer the query.
 
             #### Example:
