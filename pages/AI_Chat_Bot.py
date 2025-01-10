@@ -295,28 +295,30 @@ def render_visualization(llm_response):
 
 
     # Handle visualizations
-    with st.chat_message("assistant"):
-        if visualization:
-            vis_type = visualization.get("type")
-            data_params = visualization.get("data_params", {})
+    if visualization:
+        vis_type = visualization.get("type")
+        data_params = visualization.get("data_params", {})
 
-            # Find and execute the function
-            visualization_function = function_registry.get(vis_type)
-            if visualization_function:
-                try:
-                    output = visualization_function(**data_params)
-                    if isinstance(output, pd.DataFrame):
-                        st.dataframe(output)
-                    elif isinstance(output, plt.Figure):
-                        st.pyplot(output)
-                    else:
-                        st.write(output)
-                except Exception as e:
-                    st.error(f"Error executing {vis_type}: {e}")
-            else:
-                st.error(f"Visualization type '{vis_type}' not recognized.")
+        # Find and execute the function
+        visualization_function = function_registry.get(vis_type)
+        if visualization_function:
+            try:
+                output = visualization_function(**data_params)
+                if isinstance(output, pd.DataFrame):
+                    return (st.dataframe, output)
+                elif isinstance(output, plt.Figure):
+                    return (st.pyplot, output)
+                else:
+                    return (st.write, output)
+            except Exception as e:
+                st.error(f"Error executing {vis_type}: {e}")
+                return None
         else:
-            st.write("No visualization requested.")
+            st.error(f"Visualization type '{vis_type}' not recognized.")
+            return None
+    else:
+        st.write("No visualization requested.")
+        return None
 
 
 
@@ -386,11 +388,13 @@ if authentication_status:
             response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
             st.write_stream(response_generator())
 
+            render = render_visualization(json.loads(response.response))
+            if render:
+                render[0](*render[1:])
+            
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text}
             st.session_state.messages.append(message)
-
-            render_visualization(json.loads(response.response))
         
 elif authentication_status is False:
     st.error("Invalid username or password.")
