@@ -356,6 +356,10 @@ if authentication_status:
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
+            if "visualization" in message:
+                visualization = message["visualization"]
+                if visualization:
+                    visualization[0](*visualization[1:])
 
     debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
 
@@ -388,12 +392,12 @@ if authentication_status:
             response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
             st.write_stream(response_generator())
 
-            render = render_visualization(json.loads(response.response))
-            if render:
-                render[0](*render[1:])
+            visualization = render_visualization(json.loads(response.response))
+            if visualization:
+                visualization[0](*visualization[1:])
             
             # Append the assistant's response to the chat history
-            message = {"role": "assistant", "content": response_text}
+            message = {"role": "assistant", "content": response_text, "visualization": visualization}
             st.session_state.messages.append(message)
         
 elif authentication_status is False:
