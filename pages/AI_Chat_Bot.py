@@ -124,8 +124,6 @@ def load_data():
             except Exception as e:
                 print(f"Error fetching {query_name}: {e}")
 
-        if debug_mode:
-            print(f"Foundational Documents: {documents}")
         return documents
 
     # Fetch static documents (e.g., text files in the "data" folder)
@@ -146,9 +144,6 @@ def load_data():
     
     all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
 
-    if debug_mode:
-        print(f"Static Documents: {static_docs}")
-        print(f"Dynamic Documents: {dynamic_docs}")
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
@@ -351,6 +346,8 @@ if authentication_status:
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    if "renders" not in st.session_state:
+        st.session_state.renders = []
 
     # Display chat history
     for message in st.session_state.messages:
@@ -360,21 +357,27 @@ if authentication_status:
     debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
 
     with st.sidebar:
-        def reset_conversation():
-            # Clear the existing list of messages
-            if "messages" in st.session_state:
-                st.session_state.messages.clear()
-        st.button('Reset Chat', on_click=reset_conversation)
+        with st.expander("Charts & Visualizations"):
+            for render in st.session_state.renders:
+                render[0](*render[1:])
+
+        with st.expander("Chat Bot Settings"):
+            def reset_conversation():
+                # Clear the existing list of messages
+                if "messages" in st.session_state:
+                    st.session_state.messages.clear()
+            st.button('Reset Chat', on_click=reset_conversation)
 
     if debug_mode:
         with st.sidebar:
             # Cache clearing button
-            if st.sidebar.button("Reset Session State"):
-                st.cache_data.clear()
-                st.cache_resource.clear()
-                st.sidebar.success("Cache cleared successfully.")
-            st.write("Session State:", st.session_state)
-            st.write("Model System Prompt:", Settings.llm.system_prompt)
+            with st.expander("Cache Management"):
+                if st.sidebar.button("Reset Cache & Session State"):
+                    st.cache_data.clear()
+                    st.cache_resource.clear()
+                    st.sidebar.success("Cache cleared successfully.")
+                st.write("Session State:", st.session_state)
+                st.write("Model System Prompt:", Settings.llm.system_prompt)
     # Handle user input
     if prompt := st.chat_input("What is up?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
@@ -395,6 +398,8 @@ if authentication_status:
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text}
             st.session_state.messages.append(message)
+            # Append the visualization to the renders list
+            st.session_state.messages.append(render)
         
 elif authentication_status is False:
     st.error("Invalid username or password.")
