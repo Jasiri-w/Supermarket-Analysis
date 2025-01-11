@@ -387,7 +387,7 @@ if authentication_status:
 
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
-            with st.status("Thinking..."):
+            with st.status("Thinking...", expanded=True) as status:
                 st.write("Polling the LLM")
                 response = st.session_state.chat_engine.chat(prompt)
                 st.write("Loading the json")
@@ -400,6 +400,10 @@ if authentication_status:
                 visualization = render_visualization(json.loads(response.response))
                 if visualization:
                     visualization[0](*visualization[1:])
+
+                status.update(
+                    label="Done!", state="complete", expanded=False
+                )
             
                 st.write("Storing the response")
                 # Append the assistant's response to the chat history
