@@ -387,18 +387,25 @@ if authentication_status:
 
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
-            response = st.session_state.chat_engine.chat(prompt)
-            response_text = json.loads(response.response)["text"]
-            response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
-            st.write_stream(response_generator())
+            with st.status("Thinking..."):
+                st.write("Polling the LLM")
+                response = st.session_state.chat_engine.chat(prompt)
+                st.write("Loading the json")
+                response_text = json.loads(response.response)["text"]
+                st.write("Creating the response generator")
+                response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
+                st.write_stream(response_generator())
 
-            visualization = render_visualization(json.loads(response.response))
-            if visualization:
-                visualization[0](*visualization[1:])
+                st.write("Rendering the visualization")
+                visualization = render_visualization(json.loads(response.response))
+                if visualization:
+                    visualization[0](*visualization[1:])
             
-            # Append the assistant's response to the chat history
-            message = {"role": "assistant", "content": response_text, "visualization": visualization}
-            st.session_state.messages.append(message)
+                st.write("Storing the response")
+                # Append the assistant's response to the chat history
+                message = {"role": "assistant", "content": response_text, "visualization": visualization}
+                st.write("Appending the full message")
+                st.session_state.messages.append(message)
         
 elif authentication_status is False:
     st.error("Invalid username or password.")
