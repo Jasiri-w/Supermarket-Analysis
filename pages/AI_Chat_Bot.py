@@ -346,6 +346,7 @@ if authentication_status:
 
     if "messages" not in st.session_state:
         st.session_state.messages = []
+    
     if "renders" not in st.session_state:
         st.session_state.renders = []
 
@@ -354,7 +355,8 @@ if authentication_status:
         with st.chat_message(message["role"]):
             st.markdown(message["content"])
 
-    debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
+    if st.secrets["DEBUG_MODE"]:
+        debug_mode = st.sidebar.checkbox("Enable Debug Mode", value=st.secrets["DEBUG_MODE"])
 
     with st.sidebar:
         with st.expander("Charts & Visualizations"):
