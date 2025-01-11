@@ -194,6 +194,7 @@ def load_data():
 
             - **Contextualization**: If relevant functions exist, trust them to generate the necessary data, even if the query does not provide all needed context. The system assumes that the visualizer will return usable data, so always execute the relevant function and return the corresponding visualization.
             - You are expected to identify relevant functions from the function registry even if the user’s query is slightly varied from the function’s exact description. You should still understand that slight phrasing differences (e.g., "fetch products" vs. "get products") should be interpreted as referring to the same function.
+            - You MUST NOT hallucinate function names, they must be exact matches from the registry. They can have the same meaning as the users prompt but must use the exact spelling and naming from the registry.
             - **When to State Unavailability**: Only if there is **no relevant function** in the registry and **no relevant context** in memory should you state that you cannot answer the query.
 
             #### Example:
