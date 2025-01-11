@@ -3,6 +3,7 @@ import io
 import json
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
+from llama_index.core.program import DFFullProgram, DFRowsProgram
 import matplotlib.pyplot as plt
 import openai
 import pandas as pd
@@ -286,7 +287,7 @@ def render_visualization(llm_response):
     """
     response_text = llm_response.get("text", "")
     visualization = llm_response.get("visualization", {})
-
+    df = df[(df.index >= pd.to_datetime(st.session_state.start_date)) & (df.index <= pd.to_datetime(st.session_state.end_date))]
 
     # Handle visualizations
     if visualization:
@@ -407,6 +408,19 @@ if authentication_status:
             if visualization:
                 visualization[0](*visualization[1:])
 
+            # Adding the functions retrieved data to the index so the LLM can learn
+            output = visualization[1:]
+            if isinstance(*visualization[1:], pd.DataFrame):
+                index.insert(
+                    Document(
+                        text=output.to_string(index=False),
+                        metadata={"source": json.loads(response.response)["visualization"]["type"]},
+                    )
+                )
+            elif isinstance(*visualization[1:], plt.Figure):
+                pass
+            else:
+                index.insert(Document(text=output))
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text, "visualization": visualization}
