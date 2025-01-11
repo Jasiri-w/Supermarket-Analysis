@@ -139,7 +139,6 @@ def load_data():
         ) 
         for key, value in function_registry.items()
     ]
-    st.write(function_registry_docs)
     intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs.\n")
     
     all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
@@ -407,6 +406,7 @@ if authentication_status:
 
             if visualization:
                 visualization[0](*visualization[1:])
+
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text, "visualization": visualization}
