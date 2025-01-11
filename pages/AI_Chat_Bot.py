@@ -3,7 +3,6 @@ import io
 import json
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
-from llama_index.core.program import DFFullProgram, DFRowsProgram
 import matplotlib.pyplot as plt
 import openai
 import pandas as pd
