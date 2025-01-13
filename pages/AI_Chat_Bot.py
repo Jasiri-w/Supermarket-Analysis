@@ -408,7 +408,7 @@ if authentication_status:
 
                 # Adding the functions retrieved data to the index so the LLM can learn
                 output = visualization[1:]
-                if isinstance(*visualization[1:], pd.DataFrame):
+                '''if isinstance(*visualization[1:], pd.DataFrame):
                     index.insert(
                         Document(
                             text=output.to_string(index=False),
@@ -418,7 +418,7 @@ if authentication_status:
                 elif isinstance(*visualization[1:], plt.Figure):
                     pass
                 else:
-                    index.insert(Document(text=output))
+                    index.insert(Document(text=output))'''
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text, "visualization": visualization}
