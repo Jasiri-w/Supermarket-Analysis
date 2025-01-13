@@ -145,7 +145,7 @@ def load_data():
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
-        model="ft:gpt-4o-mini-2024-07-18:uncle-suave:analytics-helper:AoMrgPmN",
+        model="gpt-4o-mini",
         temperature=0.0,  # Ensure deterministic, fact-based responses
         system_prompt="""
             YOU WILL ANSWER ANY AND ALL QUESTIONS ABOUT THE DATA YOU HAVE BEEN TRAINED ON. THIS MEANS ANY CONTEXT ABOUT THE FUNCTIONS IN THE REGISTRY, YOUR MAKER AND MORE.
@@ -408,6 +408,7 @@ if authentication_status:
 
                 # Adding the functions retrieved data to the index so the LLM can learn
                 output = visualization[1:]
+                
                 '''if isinstance(*visualization[1:], pd.DataFrame):
                     index.insert(
                         Document(
