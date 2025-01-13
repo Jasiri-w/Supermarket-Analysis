@@ -381,16 +381,21 @@ if authentication_status:
                 st.write("Session State:", st.session_state)
                 st.write("Model System Prompt:", Settings.llm.system_prompt)
     # Handle user input
+    if not "json_responses" in st.session_state:
+        st.session_state.json_responses = []
+
     if prompt := st.chat_input("What is up?"):
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
+
 
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
             with st.status("Thinking...", expanded=True) as status:
                 st.write("Polling the LLM")
                 response = st.session_state.chat_engine.chat(prompt)
+                st.session_state.json_responses.append(response.response)
                 st.write("Loading the json")
                 response_text = json.loads(response.response)["text"]
                 st.write("Creating the response generator")
