@@ -207,10 +207,16 @@ def load_data():
             - "text": A string summarizing the answer or insight.
             - "visualization": An optional field that contains the visualization data if applicable. This should be included when relevant to the user's request.
             - You must not create any other JSON fields or structures in your response, only the "text" and "visualization" fields. Any extra information must remain in the text field.
+            
+            Example:
+            User: "What functions can you perform?"
+            LLM Response:
+            {
+                "text": "Here are the available functions related to sales, product, and marketing data that I can perform: 1. get_daily_customer_most_purchased 2. get_highest_daily_customers 3. plot_sales_trend",
+            }
+
             - Tone: Your tone should always be conversational, friendly, and professional. Aim to be approachable, like a helpful assistant. Use first-person pronouns and remain engaging while maintaining professionalism.
-
             - Consistency: The formatting of the response should always adhere to the JSON structure outlined above. Ensure the tone and style match the structured requirements and the context of the query.
-
             """
     )
 
