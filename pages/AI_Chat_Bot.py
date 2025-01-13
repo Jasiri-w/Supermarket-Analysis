@@ -110,7 +110,7 @@ def load_data():
         }
 
         query_descriptions = {
-            "Customer Information": "This query fetches all the customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit).",
+            "Customer Information": "This query fetches all the customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit). The 'Cash Sale' customer represents all daily customers that buy items without an account while the rest are Credit Account holders.",
             "Product Inventory": "This query fetches the product inventory data from the database, including the product's name (description), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the quantity available (quantity).",
             #"Transactions": "This query fetches the transaction data from the database.",
             #"transaction_details": "This query fetches the transaction details from the database.",
@@ -207,6 +207,7 @@ def load_data():
             - "text": A string summarizing the answer or insight.
             - "visualization": An optional field that contains the visualization data if applicable. This should be included when relevant to the user's request.
             - You must not create any other JSON fields or structures in your response, only the "text" and "visualization" fields. Any extra information must remain in the text field.
+            - You must not hallucinate or come up with names of functions that are not in the function registry. You must only use the exact names of the functions in the registry.
             
             Example:
             User: "What functions can you perform?"
@@ -423,7 +424,7 @@ if authentication_status:
                 visualization[0](*visualization[1:])
 
                 # Adding the functions retrieved data to the index so the LLM can learn
-                '''output = visualization[1:]
+                output = visualization[1:]
                 if isinstance(*visualization[1:], pd.DataFrame):
                     for i in output:
                         index.insert(
@@ -435,7 +436,7 @@ if authentication_status:
                 elif isinstance(*visualization[1:], plt.Figure):
                     pass
                 else:
-                    index.insert(Document(text=output))'''
+                    index.insert(Document(text=output))
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text, "visualization": visualization}
