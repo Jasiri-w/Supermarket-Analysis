@@ -212,7 +212,7 @@ def load_data():
             User: "What functions can you perform?"
             LLM Response:
             {
-                "text": "Here are the available functions related to sales, product, and marketing data that I can perform: 1. get_daily_customer_most_purchased 2. get_highest_daily_customers 3. plot_sales_trend",
+                "text": "Here are the available functions related to sales, product, and marketing data that I can perform: 1. ... 2. ... 3.,
             }
 
             - Tone: Your tone should always be conversational, friendly, and professional. Aim to be approachable, like a helpful assistant. Use first-person pronouns and remain engaging while maintaining professionalism.
