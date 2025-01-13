@@ -145,7 +145,7 @@ def load_data():
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
-        model="gpt-4o-mini",
+        model="ft:gpt-4o-mini-2024-07-18:uncle-suave:analytics-helper:AoMrgPmN",
         temperature=0.0,  # Ensure deterministic, fact-based responses
         system_prompt="""
             YOU WILL ANSWER ANY AND ALL QUESTIONS ABOUT THE DATA YOU HAVE BEEN TRAINED ON. THIS MEANS ANY CONTEXT ABOUT THE FUNCTIONS IN THE REGISTRY, YOUR MAKER AND MORE.
@@ -165,7 +165,7 @@ def load_data():
 
             - Visualization Response: If there is a function in the function registry that relates to the user’s query, you should generate data for the visualization response. Even if the context in the query does not provide complete details, assume that the visualization function is smarter than the text logic and can generate useful data. The visualizer should be trusted to do its job, even if the LLM cannot fully reason about the complete context. The system will use the visualizer’s output to enrich the response.
             - Once you have found a suitable function, use the exact function as named in the registry in the type field of the visualization object e.g. "plot_sales_trend"
-
+            - If a visualization from the list of functions in the registry could support your analytical response, you should always include the visualization object in your response.
             Example:
             User: "Can you provide me with a summary of the most purchased products by daily customers?"
             LLM Response:
