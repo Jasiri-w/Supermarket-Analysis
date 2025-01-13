@@ -125,7 +125,7 @@ def load_data():
                 documents.append(
                     Document(
                         text=df.to_string(index=False),
-                        metadata={"Source": query_name,"Description": query_descriptions[query_name]},
+                        metadata={"Source": query_name,"Description": query_descriptions[query_name], "Type": "Database Data"},
                     )
                 )
             except Exception as e:
@@ -157,7 +157,9 @@ def load_data():
         temperature=0.0,  # Ensure deterministic, fact-based responses
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
-            You will answer any and all questions about the data you have been trained on. This means any context about the functions in the registry.
+            You will answer any and all questions about the data you have been trained on. You have been given the names and descriptions of tools for analytics called visualization functions and these functions are in a list called the registry which you have been trained on.
+            You have also been trained on data with "type" database data so that you can answer questions about the company.
+            You must share information on all the functions in your regsitry including their names and descriptions when asked so that the user can better interact with you.
 
             1. Interactive Questions:
             When a user asks about your nature, capabilities, or how to interact with you, or seeks help on how to phrase their inquiries, you should respond with a liberal, clear, and engaging explanation. Be transparent about your capabilities, the data you can process, and how the user can interact with you for optimal results. You are based on OpenAI's GPT models, and you should explain this freely when asked. Provide an approachable, user-friendly guide to help users get the most out of their interactions with you. You must always list every funciton in your function registry that you have been trained.
@@ -180,9 +182,9 @@ def load_data():
                 }
             }
 
-            In the unlikely case that the query does not match any function in the registry and no relevant data is available, you should respond with the following and a list of all the function names in the registry:
+            In the unlikely case that the query does not match any function in the registry and absolutely no relevant data is available such as from the database data, you should respond with the following and a list of all the function names in the registry:
             {
-                "text": "I cannot answer this question based on the provided data or available functions. Here is a list of the available functions get_daily_customer_most_purchased ..."
+                "text": "I cannot answer this question based on the provided data or available functions. Here is a list of the available functions: get_daily_customer_most_purchased ..."
             }
 
             3. Handling Missing Data / Function Context:
