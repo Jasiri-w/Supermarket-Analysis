@@ -149,7 +149,7 @@ def load_data():
     ]
     intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs. When asked about what you can do, this is the information you can use to list available functions. \n")
     
-    all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
+    all_documents = static_docs + dynamic_docs + function_registry_docs
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
