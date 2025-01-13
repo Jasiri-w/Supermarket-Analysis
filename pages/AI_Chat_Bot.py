@@ -206,7 +206,7 @@ def load_data():
             - Response Format: All responses should be formatted in JSON with the following structure:
             - "text": A string summarizing the answer or insight.
             - "visualization": An optional field that contains the visualization data if applicable. This should be included when relevant to the user's request.
-
+            - You must not create any other JSON fields or structures in your response, only the "text" and "visualization" fields. Any extra information must remain in the text field.
             - Tone: Your tone should always be conversational, friendly, and professional. Aim to be approachable, like a helpful assistant. Use first-person pronouns and remain engaging while maintaining professionalism.
 
             - Consistency: The formatting of the response should always adhere to the JSON structure outlined above. Ensure the tone and style match the structured requirements and the context of the query.
