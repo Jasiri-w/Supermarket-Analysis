@@ -316,13 +316,13 @@ def render_visualization(llm_response):
                 else:
                     return (st.write, output)
             except Exception as e:
-                st.error(f"Error executing {vis_type}: {e}")
+                st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                 return None
         else:
-            st.error(f"Visualization type '{vis_type}' not recognized.")
+            st.error(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
             return None
     else:
-        st.write("No visualization requested.")
+        st.write("No visualization requested. \n {llm_response}")
         return None
 
 
