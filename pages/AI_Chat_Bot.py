@@ -142,7 +142,7 @@ def load_data():
     function_registry_docs = [
         Document(
             text=f"Function Registry Name - {key}:\n"
-                f"Description: {value.__doc__}\n"
+                f"Description: {value.__doc__}\n",
             metadata={"Name": key}
         ) 
         for key, value in function_registry.items()
