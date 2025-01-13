@@ -395,7 +395,7 @@ if authentication_status:
             with st.status("Thinking...", expanded=True) as status:
                 st.write("Polling the LLM")
                 response = st.session_state.chat_engine.chat(prompt)
-                st.session_state.json_responses.append(response.response)
+                st.session_state.json_responses.append(json.loads(response.response))
                 st.write("Loading the json")
                 response_text = json.loads(response.response)["text"]
                 st.write("Creating the response generator")
