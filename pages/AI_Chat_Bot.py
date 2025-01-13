@@ -110,8 +110,8 @@ def load_data():
         }
 
         query_descriptions = {
-            "Customer Information": "This query fetches all the customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit). The 'Cash Sale' customer represents all daily customers that buy items without an account while the rest are Credit Account holders.",
-            "Product Inventory": "This query fetches the product inventory data from the database, including the product's name (description), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the quantity available (quantity).",
+            "Customer Information": "This data represents customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit). The 'Cash Sale' customer represents all daily customers that buy items without an account while the rest are Credit Account holders.",
+            "Product Inventory": "This data represents fetches the product inventory data from the database, including the product's name (description), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the quantity available (quantity).",
             #"Transactions": "This query fetches the transaction data from the database.",
             #"transaction_details": "This query fetches the transaction details from the database.",
             #"payment_data": "This query fetches the payment data from the database.",
@@ -143,7 +143,7 @@ def load_data():
         Document(
             text=f"Function Registry Name - {key}:\n"
                 f"Description: {value.__doc__}\n",
-            metadata={"Name": key}
+            metadata={"Name": key, "Type": "Visualization Function"},
         ) 
         for key, value in function_registry.items()
     ]
@@ -154,7 +154,7 @@ def load_data():
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
         model="gpt-4o-mini",
-        temperature=0.0,  # Ensure deterministic, fact-based responses
+        temperature=0.2,  # Ensure deterministic, fact-based responses
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided.
             You will answer any and all questions about the data you have been trained on. You have been given the names and descriptions of tools for analytics called visualization functions and these functions are in a list called the registry which you have been trained on.

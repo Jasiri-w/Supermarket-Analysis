@@ -135,7 +135,7 @@ def get_daily_customer_most_purchased():
 @st.cache_data
 def get_highest_daily_customers():
     """
-    Fetch the highest daily customers based on total purchases.
+    Fetch the highest paying daily customers based on total purchases.
 
     Returns:
         pd.DataFrame: DataFrame containing the highest daily customers.
