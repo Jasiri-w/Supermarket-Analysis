@@ -102,12 +102,19 @@ def load_data():
         """
         # Default foundational queries to provide breadth for the chatbot
         foundational_queries = {
-            "customer_data": "SELECT * FROM public.customers LIMIT 100",
-            "product_data": "SELECT * FROM public.product LIMIT 100",
-            "transaction_data": "SELECT * FROM public.transactions LIMIT 100",
-            "transaction_details": "SELECT * FROM public.transactiondetails LIMIT 100",
-            "payment_data": "SELECT * FROM public.payment LIMIT 100",
-            "inventory_data": "SELECT * FROM public.inventory LIMIT 100"
+            "Customer Information": "SELECT * FROM public.customers",
+            "Product Inventory": "SELECT * FROM public.product LIMIT 100",
+            #"Transactions": "SELECT * FROM public.transactions LIMIT 100",
+            #"transaction_details": "SELECT * FROM public.transactiondetails LIMIT 100",
+            #"payment_data": "SELECT * FROM public.payment LIMIT 100",
+        }
+
+        query_descriptions = {
+            "Customer Information": "This query fetches all the customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit).",
+            "Product Inventory": "This query fetches the product inventory data from the database, including the product's name (description), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the quantity available (quantity).",
+            #"Transactions": "This query fetches the transaction data from the database.",
+            #"transaction_details": "This query fetches the transaction details from the database.",
+            #"payment_data": "This query fetches the payment data from the database.",
         }
 
         # Execute foundational queries
@@ -118,7 +125,7 @@ def load_data():
                 documents.append(
                     Document(
                         text=df.to_string(index=False),
-                        metadata={"source": query_name},
+                        metadata={"source": query_name,"description": query_descriptions[query_name]},
                     )
                 )
             except Exception as e:
@@ -139,7 +146,7 @@ def load_data():
         ) 
         for key, value in function_registry.items()
     ]
-    intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs.\n")
+    intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs. When asked about what you can do, include the names of the functions in the registry. \n")
     
     all_documents = static_docs + dynamic_docs + [intro_doc] + function_registry_docs
 
@@ -407,15 +414,15 @@ if authentication_status:
                 visualization[0](*visualization[1:])
 
                 # Adding the functions retrieved data to the index so the LLM can learn
-                output = visualization[1:]
-                
-                '''if isinstance(*visualization[1:], pd.DataFrame):
-                    index.insert(
-                        Document(
-                            text=output.to_string(index=False),
-                            metadata={"source": json.loads(response.response)["visualization"]["type"]},
+                '''output = visualization[1:]
+                if isinstance(*visualization[1:], pd.DataFrame):
+                    for i in output:
+                        index.insert(
+                            Document(
+                                text=i.to_string(index=False),
+                                metadata={"source": json.loads(response.response)["visualization"]["type"]},
+                            )
                         )
-                    )
                 elif isinstance(*visualization[1:], plt.Figure):
                     pass
                 else:
