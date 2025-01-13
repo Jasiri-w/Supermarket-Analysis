@@ -184,7 +184,7 @@ def load_data():
 
             In the unlikely case that the query does not match any function in the registry and absolutely no relevant data is available such as from the database data, you should respond with the following and a list of all the function names in the registry:
             {
-                "text": "I cannot answer this question based on the provided data or available functions. Here is a list of the available functions: get_daily_customer_most_purchased ..."
+                "text": "I cannot answer this question based on the provided data or available functions. Here is a list of the available functions 1. get_daily_customer_most_purchased ..."
             }
 
             3. Handling Missing Data / Function Context:
