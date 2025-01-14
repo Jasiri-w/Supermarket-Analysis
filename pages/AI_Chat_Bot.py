@@ -149,7 +149,6 @@ def load_data():
         )
         for count, (key, value) in enumerate(function_registry.items(), start=1)
     ]
-    st.write(f"Function Registry Documents: {function_registry_docs}")
     all_documents = static_docs + dynamic_docs + function_registry_docs
 
     # Set LlamaIndex's LLM settings
