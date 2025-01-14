@@ -1,0 +1,61 @@
+Term: Daily Customers
+Definition:
+Daily customers are walk-in customers who make day-to-day purchases at the store. They do not have credit accounts with the business, meaning their purchases are settled at the time of the transaction. These customers are identified by their phone numbers, as they often use mobile money platforms like M-Pesa to make payments. However, for the purpose of the sales records, all their transactions—whether paid via mobile money or in cash—are categorized as Cash Sales in the customer data.
+
+Key Characteristics:
+
+Walk-in Nature:
+
+These customers do not have ongoing credit arrangements with the business.
+They engage in single, immediate purchases, which are completed at the time of sale.
+Payment Identification:
+
+Mobile money platforms, such as M-Pesa, are commonly used, allowing the business to identify them using their phone numbers.
+Cash transactions are also prevalent among these customers.
+Sales Data Association:
+
+Since they do not maintain credit accounts, all their purchases—regardless of payment method—are logged under the Cash Sale entry in the database's customers table.
+This ensures consistent categorization and simplifies tracking of their sales data.
+Synonyms and Related Terms:
+
+Walk-in Customers: This term is interchangeable with daily customers in this context.
+Cash Sale Customers: Reflects their categorization in the database due to their immediate payment nature.
+Mobile Money Customers: Specifically highlights those daily customers who use platforms like M-Pesa to transact.
+Purpose in Analytics:
+By understanding that daily customers are synonymous with walk-in customers or cash sale customers, the LLM can correctly identify and analyze sales trends, payment patterns, or purchasing behaviors for this group. This also allows the user to use a variety of related terms, such as “walk-in customers” or “mobile money customers,” and still arrive at relevant analyses tied to the Cash Sale category.
+
+Term: Visualization Function
+Definition:
+Visualization functions are a finite group of pre-defined functions designed and implemented by the AI system's creator. These functions are specifically built to perform complex queries on the business's database, retrieve relevant data, and present it in a clear, visual format such as charts, graphs, or tables. They are purposefully tailored to address key business questions, making them essential tools for extracting and interpreting insights from customer and sales data.
+
+Key Characteristics:
+
+Pre-defined and Finite Nature:
+
+Visualization functions are not dynamically generated; they are carefully defined by the system designer to align with the business’s specific analytical needs.
+Their functionality is limited to the scope of their original design, ensuring precise and reliable outputs.
+Purpose and Capabilities:
+
+These functions use complex queries to extract and process data from the company’s database.
+They transform raw data into visual representations, such as:
+Customer purchase histories
+Product sales trends
+Customer segmentation analysis
+Revenue breakdowns
+The visual outputs are tailored to help business users quickly interpret and act upon the insights.
+Centralized List:
+
+All visualization functions are organized into a single list known as the Function Registry.
+The Function Registry acts as a comprehensive catalog of available visualization tools, including their names and descriptions, allowing users to reference and utilize them effectively.
+Usage in Analytical Processes:
+
+Visualization functions bridge the gap between raw data and actionable insights by automating the data retrieval and visualization process.
+Examples include retrieving customer purchase history, analyzing purchasing patterns, and presenting aggregated sales data in a digestible format.
+Synonyms and Related Terms:
+
+Pre-defined Functions: Highlights their static and pre-designed nature.
+Visualization Tools: Refers to their role in transforming data into visual formats.
+Function Registry Tools: Emphasizes their membership in the centralized list of available functions.
+Purpose in Analytics:
+Visualization functions are vital for generating business insights. Their inclusion in the Function Registry ensures that users have a reliable, curated set of tools at their disposal. By leveraging these functions, users can analyze various aspects of customer and sales data through simple queries, even if the underlying logic and queries are complex.
+Some visualization functions that return pyplots use a "start_date" and "end_date" to get a range in their output. Those dates must be added with those exact key names "start_date" and "end_date" in the data_params.

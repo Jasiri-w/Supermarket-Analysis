@@ -60,6 +60,7 @@ st.logo(
 )
 st.write('This chatbot is created using ChatGPT.')
 debug_mode = st.secrets["DEBUG_MODE"]
+df = load_sales_data()
 ## LlamaIndex Auxiliary Functions
 
 # Function registry
@@ -115,6 +116,7 @@ def load_data():
             #"Transactions": "This query fetches the transaction data from the database.",
             #"transaction_details": "This query fetches the transaction details from the database.",
             #"payment_data": "This query fetches the payment data from the database.",
+
         }
 
         # Execute foundational queries
@@ -154,7 +156,7 @@ def load_data():
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
         model="gpt-4o-mini",
-        temperature=0.2,  # Ensure deterministic, fact-based responses
+        temperature=0.1,  # Ensure deterministic, fact-based responses
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided. You will answer any and all questions about the data you have been trained on. You have been given the names and descriptions of tools for analytics called visualization functions, and these functions are in a list called the registry which you have been trained on. You have also been trained on data with "type" database data so that you can answer questions about the company. You must share information on all the functions in your registry, including their names and descriptions, when asked so that the user can better interact with you.
 
@@ -186,13 +188,14 @@ def load_data():
             If the user’s query does not provide enough context for a direct answer, always refer to the visualization functions in your registry. Trust the visualizers to generate necessary data, even if the query lacks full details. You must:
             - Identify relevant functions from the function registry, even if the query wording differs slightly from the function's description.
             - Avoid hallucinating function names. Use exact matches from the registry, even if they have similar meanings to the user’s request.
+            - If a function does not exist in the registry, omit the visualization feed. Instead, provide a clear response stating that no suitable visualization function is available.
             - State unavailability only if no relevant function exists in the registry and no relevant context is available.
 
             Example:
             User: "Can you tell me about the most recent marketing data?"
             LLM Response:
             {
-                "text": "I cannot answer this question based on the provided data or available functions."
+                "text": "I cannot answer this question based on the provided data or available functions. You can ask me about the available functions in the registry, about products in the store and more"
             }
 
             4. Formatting and Tone:
@@ -281,7 +284,6 @@ def render_visualization(llm_response):
     Render visualizations based on the LLM response. Utilizes all imported functions.
     :param llm_response: Dictionary with keys 'text' and optional 'visualization'.
     """
-    response_text = llm_response.get("text", "")
     visualization = llm_response.get("visualization", {})
 
     # Handle visualizations
@@ -292,22 +294,38 @@ def render_visualization(llm_response):
         # Find and execute the function
         visualization_function = function_registry.get(vis_type)
         if visualization_function:
-            try:
-                output = visualization_function(**data_params)
-                if isinstance(output, pd.DataFrame):
-                    return (st.dataframe, output)
-                elif isinstance(output, plt.Figure):
+            if visualization_function.__code__.co_varnames[0] == "df":
+                try:
+                    sd = st.session_state.start_date
+                    ed = st.session_state.end_date
+                    if "start_date" in visualization.get("data_params"):
+                        sd = visualization.get("data_params")["start_date"]
+                    if "end_date" in visualization.get("data_params"):
+                        ed = visualization.get("data_params")["end_date"]
+                        
+                    temp_df = df[(df.index >= pd.to_datetime(sd)) & (df.index <= pd.to_datetime(ed))]
+                    output = visualization_function(temp_df)
                     return (st.pyplot, output)
-                else:
-                    return (st.write, output)
-            except Exception as e:
-                st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
-                return None
+                except Exception as e:
+                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    return None
+            else:
+                try:
+                    output = visualization_function(**data_params)
+                    if isinstance(output, pd.DataFrame):
+                        return (st.dataframe, output)
+                    elif isinstance(output, plt.Figure):
+                        return (st.pyplot, output)
+                    else:
+                        return (st.write, output)
+                except Exception as e:
+                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    return None
         else:
             st.error(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
             return None
     else:
-        st.write("No visualization requested. \n {llm_response}")
+        st.write(f"No visualization requested. \n {llm_response}")
         return None
 
 
