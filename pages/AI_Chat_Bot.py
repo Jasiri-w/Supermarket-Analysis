@@ -149,8 +149,7 @@ def load_data():
         )
         for count, (key, value) in enumerate(function_registry.items(), start=1)
     ]
-    intro_doc = Document(text="The following documents describe the function registry, which contains various visualization functions for data analysis. Each function has a specific purpose, inputs, and outputs. When asked about what you can do, this is the information you can use to list available functions. \n")
-    
+    st.write(f"Function Registry Documents: {function_registry_docs}")
     all_documents = static_docs + dynamic_docs + function_registry_docs
 
     # Set LlamaIndex's LLM settings
@@ -158,7 +157,12 @@ def load_data():
         model="gpt-4o-mini",
         temperature=0.1,  # Ensure deterministic, fact-based responses
         system_prompt="""
-            You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information. Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided. You will answer any and all questions about the data you have been trained on. You have been given the names and descriptions of tools for analytics called visualization functions, and these functions are in a list called the registry which you have been trained on. You have also been trained on data with "type" database data so that you can answer questions about the company. You must share information on all the functions in your registry, including their names and descriptions, when asked so that the user can better interact with you.
+            You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information.
+            Your role is to analyze and provide technical, fact-based answers based on the company's data and context provided. 
+            You will answer any and all questions about the data you have been trained on. 
+            You have been given the names and descriptions of tools for analytics called visualization functions, and these functions are in a list called the registry which you have been trained on. 
+            You have also been trained on data with "type" database data so that you can answer questions about the company.
+            You must share information on all the functions in your registry, including their names and descriptions, when asked so that the user can better interact with you.
 
             1. Interactive Questions:
             When a user asks about your nature, capabilities, how to interact with you, or seeks help on phrasing their inquiries, respond with a clear and engaging explanation. Be transparent about your capabilities, the data you can process, and how the user can interact with you for optimal results. You are based on OpenAI's GPT models, and you should explain this freely when asked. Provide a user-friendly guide to help users get the most out of their interactions with you. Always list every function in your function registry that you have been trained on.
@@ -384,7 +388,7 @@ if authentication_status:
         with st.sidebar:
             # Cache clearing button
             with st.expander("Cache & Debugging", expanded=False):
-                if st.sidebar.button("Reset Cache & Session State"):
+                if st.sidebar.button("Reset Cache"):
                     st.cache_data.clear()
                     st.cache_resource.clear()
                     st.sidebar.success("Cache cleared successfully.")
