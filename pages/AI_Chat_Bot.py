@@ -10,6 +10,7 @@ import streamlit as st
 import time
 from utils.auth import get_authenticator
 from utils.database import fetch_data
+from utils.auxiliary import IdentityStatus, stream_generator
 
 
 ## Page Configurations must come first
@@ -62,7 +63,7 @@ st.logo(
 )
 st.write('This chatbot is created using ChatGPT.')
 debug_mode = st.secrets["DEBUG_MODE"]
-df = load_sales_data()
+sales_data_frame, _ = load_sales_data()
 ## LlamaIndex Auxiliary Functions
 
 # Function registry
@@ -163,7 +164,7 @@ def load_data():
 
     # Set LlamaIndex's LLM settings
     Settings.llm = OpenAI(
-        model="gpt-4o-mini",
+        model="ft:gpt-4o-mini-2024-07-18:uncle-suave:analytics-helper:AqFcIXps",
         temperature=0.1,  # Ensure deterministic, fact-based responses
         system_prompt="""
             You are a highly reliable and conversational personal data analytics assistant specializing in the company's sales, product, and marketing information.
@@ -247,30 +248,32 @@ def render_visualization(llm_response):
                     output = visualization_function(productno, get_products())
                     return (st.dataframe, output)
                 except Exception as e:
-                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
             elif visualization_function.__code__.co_varnames[0] == "df":
                 try:
-                    st.session_state.start_date = visualization.get("data_params")["start_date"] if "start_date" in visualization.get("data_params") else df.index.min().date()
-                    st.session_state.start_date = visualization.get("data_params")["end_date"] if "end_date" in visualization.get("data_params") else df.index.max().date()
-                    output = visualization_function(df)
-                    return (st.pyplot, output)
+                    st.session_state.start_date = data_params.get("start_date") if "start_date" in data_params else sales_data_frame.index.min().date()
+                    st.session_state.end_date = data_params.get("end_date") if "end_date" in data_params else sales_data_frame.index.max().date()
+                    
+                    output = visualization_function(sales_data_frame)
+                    return (st.dataframe, sales_data_frame[(sales_data_frame.index >= pd.to_datetime(st.session_state.start_date)) & (sales_data_frame.index <= pd.to_datetime(st.session_state.end_date))])
                 except Exception as e:
-                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
             elif visualization_function.__code__.co_varnames[0] == "phone":
                 try:
                     if data_params.get("phone") is None:
-                        st.error(f"Phone number not provided for visualization {vis_type}.")
+                        #st.error(f"Phone number not provided for visualization {vis_type}.")
                         return None
                     output = visualization_function(data_params.get("phone"))
                     return (st.dataframe, output)
                 except Exception as e:
-                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
             else:
                 try:
                     output = visualization_function(**data_params)
+                    print(f"Data Parameters - {data_params}")
                     if isinstance(output, pd.DataFrame):
                         return (st.dataframe, output)
                     elif isinstance(output, plt.Figure):
@@ -278,13 +281,13 @@ def render_visualization(llm_response):
                     else:
                         return (st.write, output)
                 except Exception as e:
-                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
         else:
-            st.error(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
+            #st.error(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
             return None
     else:
-        st.write(f"No visualization requested. \n {llm_response}")
+        st.write(f"No visualization requested.")
         return None
 
 
@@ -358,47 +361,48 @@ if authentication_status:
         with st.chat_message("user"):
             st.markdown(prompt)
 
-
+        StatusHandler = st.status if debug_mode else IdentityStatus
         # Use LlamaIndex to generate a response
         with st.chat_message("assistant"):
-            with st.status("Thinking...", expanded=True) as status:
-                st.write("Polling the LLM")
-                response = st.session_state.chat_engine.chat(prompt)
-                st.session_state.json_responses.append(json.loads(response.response))
-                st.write("Loading the json")
-                response_text = json.loads(response.response)["text"]
-                st.write("Creating the response generator")
-                response_generator = lambda: (time.sleep(0.05) or chunk for chunk in response_text.split('\n'))
-                status.update(
-                    label="Done Thinking!", state="complete", expanded=False
-                )
+            st.toast("Polling the LLM ...")
             
-            st.write_stream(response_generator())
+            response = st.session_state.chat_engine.chat(prompt)
+            st.session_state.json_responses.append(json.loads(response.response))
+            response_text = json.loads(response.response)["text"]
+            st.toast("Done thinking!")
+            
+            st.write_stream(stream_generator(response_text))
 
-            with st.status("Visualizing...", expanded=True) as status:
-                st.write("Rendering the visualization")
-                visualization = render_visualization(json.loads(response.response))
-                status.update(
-                    label="Done Visualizing!", state="complete", expanded=False
-                )
+            st.toast("Rendering any visualizations")
+            
+            visualization = render_visualization(json.loads(response.response))
 
             if visualization:
                 visualization[0](*visualization[1:])
 
                 # Adding the functions retrieved data to the index so the LLM can learn
-                output = visualization[1:]
-                if isinstance(*visualization[1:], pd.DataFrame):
-                    for i in output:
-                        index.insert(
-                            Document(
-                                text=i.to_string(index=False),
-                                metadata={"source": json.loads(response.response)["visualization"]["type"]},
-                            )
-                        )
-                elif isinstance(*visualization[1:], plt.Figure):
-                    pass
-                else:
-                    index.insert(Document(text=output))
+                # This was a really cool idea to have the LLM learn from the structured data progressively
+                # However without Tight Knit Ingestion Control via Lamma Index, I fear this could become an
+                # efficiency bottleneck (nightmare)
+                
+                # output = visualization[1:]
+                # if isinstance(*visualization[1:], pd.DataFrame):
+                #     print("Learning from dataframe")
+                #     vis_type = json.loads(response.response)["visualization"]["type"]
+                #     if not ("plot" in vis_type or "phone" in vis_type or "recommendations" in vis_type or "product" in vis_type):
+                #         for i in output:
+                #             index.insert(
+                #                 Document(
+                #                     text=i.to_string(index=False),
+                #                     metadata={"source": json.loads(response.response)["visualization"]["type"]},
+                #                 )
+                #             )
+                # elif isinstance(*visualization[1:], plt.Figure):
+                #     print("Learning from plot")
+                #     pass
+                # else:
+                #     print("Learning from other formats")
+                #     index.insert(Document(text=output))
 
             # Append the assistant's response to the chat history
             message = {"role": "assistant", "content": response_text, "visualization": visualization}

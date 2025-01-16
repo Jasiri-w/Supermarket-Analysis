@@ -4,12 +4,12 @@ import streamlit as st
 
 cosine_sim = joblib.load(st.secrets["CBF_MODEL_PATH"])
                     
-def get_recommendations(product_id, df, cosine_sim=cosine_sim):
+def get_recommendations(productno, df, cosine_sim=cosine_sim):
     '''
     Get product recommendations based on cosine similarity, purchase count, and sales margin.
     
     Parameters:
-        product_id (int): The ID of the product for which recommendations are to be generated.
+        productno (int): The Number ID of the product for which recommendations are to be generated.
         df (pd.DataFrame): DataFrame containing product data with columns 'productno', 'saleprice', 'buyprice', and 'purchase_count'.
         cosine_sim (np.ndarray): Precomputed cosine similarity matrix. Defaults to the matrix loaded from disk
     
@@ -18,9 +18,9 @@ def get_recommendations(product_id, df, cosine_sim=cosine_sim):
     '''
 
     try:
-        idx = df[df['productno'] == product_id].index[0]
+        idx = df[df['productno'] == productno].index[0]
     except IndexError:
-        print(f"Product with ID {product_id} not found in the dataset.")
+        print(f"Product with ProductNo {productno} not found in the dataset.")
         return pd.DataFrame()
 
     sim_scores = list(enumerate(cosine_sim[idx]))
