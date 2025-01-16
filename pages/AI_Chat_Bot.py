@@ -53,6 +53,8 @@ from pages.Product_Analysis import (
     get_longest_buying_customers,
 )
 
+from utils.models import get_recommendations
+
 st.title("AI Chat Bot")
 st.logo(
     st.secrets["LOGO"],
@@ -85,6 +87,7 @@ function_registry = {
     "get_top_10_items_by_phone": get_top_10_items_by_phone,
     "get_products": get_products,
     "get_top_product": get_top_product,
+    "get_recommendations": get_recommendations,
 }
 
 
@@ -104,7 +107,7 @@ def load_data():
         # Default foundational queries to provide breadth for the chatbot
         foundational_queries = {
             "Customer Information": "SELECT * FROM public.customers",
-            "Product Inventory": "SELECT * FROM public.product LIMIT 100",
+            #"Product Inventory": "SELECT * FROM public.product LIMIT 100",
             #"Transactions": "SELECT * FROM public.transactions LIMIT 100",
             #"transaction_details": "SELECT * FROM public.transactiondetails LIMIT 100",
             #"payment_data": "SELECT * FROM public.payment LIMIT 100",
@@ -112,7 +115,7 @@ def load_data():
 
         query_descriptions = {
             "Customer Information": "This data represents customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit). The 'Cash Sale' customer represents all daily customers that buy items without an account while the rest are Credit Account holders.",
-            "Product Inventory": "This data represents fetches the product inventory data from the database, including the product's name (description), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the quantity available (quantity).",
+            "Product Inventory": "This data represents the product inventory data from the database, including the product's name (description), id/number (productno), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the number of times the product was purchased (purchase_count).",
             #"Transactions": "This query fetches the transaction data from the database.",
             #"transaction_details": "This query fetches the transaction details from the database.",
             #"payment_data": "This query fetches the payment data from the database.",
@@ -133,6 +136,13 @@ def load_data():
             except Exception as e:
                 print(f"Error fetching {query_name}: {e}")
 
+        product_info = get_products()
+        documents.append(
+            Document(
+                text=product_info.to_string(index=False),
+                metadata={"Source": "Product Inventory", "Description": query_descriptions["Product Inventory"], "Type": "Database Data"},
+            )
+        )
         return documents
 
     # Fetch static documents (e.g., text files in the "data" folder)
@@ -216,72 +226,6 @@ def load_data():
     index = VectorStoreIndex.from_documents(all_documents)
     return index
 
-
-# Placeholder for dynamically called specific queries
-def fetch_specific_data_by_phone(phone):
-    """
-    Fetches specific customer-related data by phone number.
-    """
-    customer_query = f"""
-    SELECT
-        pay.phone,
-        c.cname AS customer_name,
-        COUNT(DISTINCT pay.paymentid) AS total_payments,
-        SUM(pay.amount) AS total_paid,
-        MIN(pay.datein) AS first_payment_date,
-        MAX(pay.datein) AS last_payment_date
-    FROM
-        public.payment pay
-    JOIN
-        public.customers c ON pay.custid = c.custid
-    WHERE
-        pay.phone = '{phone}'
-    GROUP BY
-        pay.phone, c.cname;
-    """
-
-    payment_history_query = f"""
-    SELECT
-        invoiceno,
-        SUM(amount) AS total_paid,
-        MIN(datein) AS payment_date
-    FROM
-        public.payment
-    WHERE
-        phone = '{phone}'
-    GROUP BY
-        invoiceno
-    ORDER BY
-        payment_date DESC;
-    """
-
-    purchase_history_query = f"""
-    SELECT
-        td.productno,
-        p.description AS product_description,
-        td.saleprice AS sold_price,
-        td.quantity AS purchase_quantity,
-        (td.saleprice * td.quantity) AS total,
-        t.datein AS purchase_date
-    FROM
-        public.transactiondetails td
-    JOIN public.transactions t ON td.transactionid = t.id
-    JOIN public.payment pay ON t.invoiceno = pay.invoiceno::TEXT
-    JOIN public.product p ON td.productno = p.productno
-    WHERE
-        pay.phone = '{phone}'
-    ORDER BY
-        purchase_date DESC;
-    """
-
-    results = {
-        "customer_summary": fetch_data(customer_query),
-        "payment_history": fetch_data(payment_history_query),
-        "purchase_history": fetch_data(purchase_history_query)
-    }
-
-    return results
-
 def render_visualization(llm_response):
     """
     Render visualizations based on the LLM response. Utilizes all imported functions.
@@ -297,18 +241,30 @@ def render_visualization(llm_response):
         # Find and execute the function
         visualization_function = function_registry.get(vis_type)
         if visualization_function:
-            if visualization_function.__code__.co_varnames[0] == "df":
+            if visualization_function == get_recommendations:
                 try:
-                    sd = st.session_state.start_date
-                    ed = st.session_state.end_date
-                    if "start_date" in visualization.get("data_params"):
-                        sd = visualization.get("data_params")["start_date"]
-                    if "end_date" in visualization.get("data_params"):
-                        ed = visualization.get("data_params")["end_date"]
-                        
-                    temp_df = df[(df.index >= pd.to_datetime(sd)) & (df.index <= pd.to_datetime(ed))]
-                    output = visualization_function(temp_df)
+                    productno = data_params.get("productno")
+                    output = visualization_function(productno, get_products())
+                    return (st.dataframe, output)
+                except Exception as e:
+                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    return None
+            elif visualization_function.__code__.co_varnames[0] == "df":
+                try:
+                    st.session_state.start_date = visualization.get("data_params")["start_date"] if "start_date" in visualization.get("data_params") else df.index.min().date()
+                    st.session_state.start_date = visualization.get("data_params")["end_date"] if "end_date" in visualization.get("data_params") else df.index.max().date()
+                    output = visualization_function(df)
                     return (st.pyplot, output)
+                except Exception as e:
+                    st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    return None
+            elif visualization_function.__code__.co_varnames[0] == "phone":
+                try:
+                    if data_params.get("phone") is None:
+                        st.error(f"Phone number not provided for visualization {vis_type}.")
+                        return None
+                    output = visualization_function(data_params.get("phone"))
+                    return (st.dataframe, output)
                 except Exception as e:
                     st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None

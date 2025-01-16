@@ -124,11 +124,11 @@ def plot_monthly_sales_with_rolling_avg(df):
 
 
 @st.cache_data
-def get_purchases_within_range(start_date=st.session_state.start_date, end_date=st.session_state.end_date):
+def get_purchases_within_range():
     """
     Fetch purchases within a specified date range.
 
-    Args:
+    Args from session state:
         start_date (datetime.date): The start date of the range.
         end_date (datetime.date): The end date of the range.
 

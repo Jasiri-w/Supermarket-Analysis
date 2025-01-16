@@ -3,6 +3,7 @@ fine_tuned_sales_model/
 proprietary/
 secrets.toml
 models/lora_model
+fine_tuning_datasets/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
