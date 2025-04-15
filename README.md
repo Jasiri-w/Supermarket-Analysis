@@ -7,7 +7,7 @@ View live: [Supermarket Analytics Dashboard](https://supermarket-analytics-dashb
 This Web App is a comprehensive data analysis dashboard designed for analyzing Supermarket sales. It offers detailed views for Customer Relationship Management (CRM), Sales Trends Analysis, and Product Analysis. Additionally, a fine-tuned LLM-based AI chat feature is in the works and will be available soon.
 
 
-An authentication system is modelled in the application. The test users have username:*John* and password:*johnpass*
+An authentication system is modelled in the application, but turned off for the time being. The test users have username:*John* and password:*johnpass*
 
 This aims to help sales and management answer questions such as _who_ are our quality customers, _what_ are they buying and _how_ can we get them to buy more and build a relationship with our customers?
 
@@ -25,6 +25,9 @@ This project is developed using:
 - **Streamlit** for the backend and UI of the application.
 - **Supabase** for handling database interactions.
 - **Streamlit Community Cloud** for hosting the application.
+- **LlamaIndex** for indexing data and enabling natural language queries over internal supermarket documents and reports.
+- **OpenAI (GPT-3.5)** for generating intelligent responses grounded in indexed sales and customer data.
+
 
 ## Key Features
 
@@ -47,10 +50,20 @@ This project is developed using:
      - **Joblib** for model persistence and fast retrieval.
      - View the notebook used to train this model [here](https://colab.research.google.com/drive/1-hjoyNgRj2KtlPsl87aTI0xqu0VTwx4M?usp=sharing)
 
-### 5. **AI Chat (Coming Soon)**
-   - A fine-tuned language model (LLM) will be integrated into the app, providing an AI-powered chat feature. This AI assistant will specialize in sales data analysis and provide insightful responses related to customer trends, product performance, and overall supermarket analytics.
 
-Data is based on real supermarket data courtesy of a supermarket in Kenya, personal information has been randomized for preview.
+### 5. **AI Chat Assistant (New in 2025!)**
+An AI-powered assistant is integrated into the application to provide natural language querying capabilities for supermarket analytics. Powered by **OpenAI's GPT-3.5** and **LlamaIndex**, the assistant allows users to ask business questions such as:
+- "What were our best-selling products last month?"
+- "Who are our top customers this week?"
+- "Which payment method brings the highest revenue?"
+
+The assistant retrieves answers by:
+- Indexing structured reports and insights from the supermarket dataset using **LlamaIndex** (vector-based search).
+- Generating context-aware responses using **GPT-3.5** with a low-temperature setting to ensure accuracy and clarity.
+
+This makes sales analytics more intuitive and accessible to non-technical users through a simple chat interface embedded in the Streamlit dashboard.
+This assistant has been fine-tuned using a carefully curated dataset of supermarket-related queries and structured analytical tasks. It responds with both visual insights and concise text, formatted in a developer-friendly JSON format.
+
 
 ## Preview
 
@@ -61,6 +74,14 @@ Data is based on real supermarket data courtesy of a supermarket in Kenya, perso
 ![image](https://github.com/user-attachments/assets/09f0bec2-ebc8-4318-9463-90c3a46a4e33)
 
 ... View more at [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
+
+Example questions you can ask the AI Assistant:
+
+- What are the top 10 best-selling items?
+- Show me the sales trend over the last 3 months.
+- What did the customer with phone number 0712345678 buy last week?
+- Which product category brings in the most revenue?
+- Show me all customers who have shopped more than 10 times.
 
 ## Icons and Visuals
 Icons used in this project are courtesy of [geticon](https://github.com/get-icon/geticon).
