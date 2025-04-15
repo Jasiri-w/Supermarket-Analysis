@@ -1,5 +1,5 @@
 const puppeteer = require('puppeteer');
-const TARGET_URL = "https://supermarket-analytics-dashboard.streamlit.app/";
+const TARGET_URL = "https://supermarket-analytics-dashboard.streamlit.app/Product_Analysis";
 const WAKE_UP_BUTTON_TEXT = "app back up";
 const PAGE_LOAD_GRACE_PERIOD_MS = 8000;
 
