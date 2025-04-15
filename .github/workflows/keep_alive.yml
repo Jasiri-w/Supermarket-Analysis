@@ -19,5 +19,5 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
       - name: Probe Deployed App Action Step
-        uses: probe-action # Uses an action in the probe-action directory
+        uses: /probe-action # Uses an action in the probe-action directory
         id: probe
