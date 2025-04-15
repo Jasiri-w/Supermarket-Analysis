@@ -1,6 +1,6 @@
 FROM ghcr.io/puppeteer/puppeteer:17.0.0
 
-WORKDIR /home/pptruser/src
+WORKDIR /github/workspace/probe-action
 
 COPY probe.js .
 
