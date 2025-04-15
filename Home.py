@@ -16,10 +16,13 @@ st.logo(
 
 # Authenticate user
 authenticator = get_authenticator()
-authenticator.login(key='Login1',location= 'main')
-authentication_status = st.session_state['authentication_status']
-name = st.session_state['name']
-username = st.session_state['username']
+if authenticator:
+    authenticator.login(key='Login1',location= 'main')
+
+# Safely access session state keys with default values
+authentication_status = st.session_state.get('authentication_status', None)
+name = st.session_state.get('name', "Guest")
+username = st.session_state.get('username', "guest")
 
 if authentication_status:
     st.success(f"Welcome, {name}!")

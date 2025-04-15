@@ -2,6 +2,13 @@ import streamlit as st
 import streamlit_authenticator as stauth
 
 def get_authenticator():
+    # Check if authentication is disabled via environment variable
+    if st.secrets.get("DISABLE_AUTHENTICATION", False):
+        st.session_state['authentication_status'] = True
+        st.session_state['name'] = "Guest"
+        st.session_state['username'] = "guest"
+        return None  # Skip creating the authenticator
+
     # Extract credentials from secrets
     credentials = {
         'usernames': {
