@@ -4,4 +4,4 @@ WORKDIR /home/pptruser/src
 
 COPY probe.js .
 
-ENTRYPOINT ["bash", "-c", "ls -l /github/workspace && node probe.js"]
+ENTRYPOINT ["bash", "-c", "ls -l /github/workspace && node probe_action/probe.js"]
