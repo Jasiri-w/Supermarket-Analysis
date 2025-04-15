@@ -9,7 +9,7 @@ on:
       environment:
         description: 'Deployment Environment'
         required: false
-        default: 'production'
+        default: 'Production'
 
 jobs:
   probe_deployed_app:
