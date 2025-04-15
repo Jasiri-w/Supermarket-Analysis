@@ -1,6 +1,7 @@
 FROM ghcr.io/puppeteer/puppeteer:17.0.0
 
-WORKDIR /home/pptruser/src
-COPY probe.js .
+COPY ./probe-action/probe.js /home/pptruser/src/probe.js
 
-ENTRYPOINT ["bash", "-c", "pwd && ls -l . && node probe-action/probe.js"]
+WORKDIR /home/pptruser/src
+
+ENTRYPOINT ["bash", "-c", "pwd && ls -l . && node probe.js"]
