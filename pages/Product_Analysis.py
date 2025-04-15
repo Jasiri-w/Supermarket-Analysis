@@ -378,7 +378,7 @@ def main():
 
     # Example for expanders with headers and data
 
-     # Authenticate user
+    # Authenticate user
     authenticator = get_authenticator()
     if authenticator:
         authenticator.login(key='LoginProductAnalysis', location='main')
@@ -415,6 +415,7 @@ def main():
         with st.expander("Longest Buying Customers"):
             longest_buying_customers_data = get_longest_buying_customers()
             st.dataframe(longest_buying_customers_data)
+            
     elif authentication_status is False:
         st.error("Invalid username or password.")
     elif authentication_status is None:

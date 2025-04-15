@@ -400,15 +400,17 @@ def main():
         icon_image=st.secrets["ICON"],
     )  
 
-    if 'authentication_status' not in st.session_state:
-        st.session_state['authentication_status'] = False
+    # Authenticate user
+    authenticator = get_authenticator()
+    if authenticator: # Checks if authentication is disabled via environment variable
+        authenticator.login(key='LoginProductAnalysis', location='main') # This displays the authentication form
 
-    if not st.session_state['authentication_status']:
-        get_authenticator().login(key='LoginCRM',location= 'main')
-        st.warning("Please enter your login credentials to access the CRM.")
+    # Safely access session state keys with default values
+    authentication_status = st.session_state.get('authentication_status', None)
+    name = st.session_state.get('name', "Guest")
 
-    else:
-
+    # Main Layout
+    if authentication_status: # Display content only if authenticated
         tab1, tab2 = st.tabs(["📈 Overview: All Customers", "🔍 Search for a Customer"])
 
         # Display all customer data
@@ -478,6 +480,9 @@ def main():
 
                 else:
                     st.write("No customer data found for the provided phone number.")
-
+    elif authentication_status is False:
+        st.error("Invalid username or password.") 
+    elif authentication_status is None:
+        st.warning("Please enter your login credentials.")
 if __name__ == "__main__":
     main()

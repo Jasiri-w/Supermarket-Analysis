@@ -268,15 +268,18 @@ def main():
         default=['Monthly', 'Weekly', 'Daily', 'Monthly with Rolling Average']
     )
 
-    if 'authentication_status' not in st.session_state:
-        st.session_state['authentication_status'] = False
+
+    # Authenticate user
+    authenticator = get_authenticator()
+    if authenticator: # Checks if authentication is disabled via environment variable
+        authenticator.login(key='LoginProductAnalysis', location='main') # This displays the authentication form
+
+    # Safely access session state keys with default values
+    authentication_status = st.session_state.get('authentication_status', None)
+    name = st.session_state.get('name', "Guest")
 
     # Main Layout
-    if not st.session_state['authentication_status']:
-        get_authenticator().login(key='LoginCRM',location= 'main')
-        st.warning("Please enter your login credentials to access the CRM.")
-
-    else:
+    if authentication_status: # Display content only if authenticated
         tab1, tab2 = st.tabs(["Charts", "Table"])
 
         with tab1:
@@ -296,6 +299,11 @@ def main():
                 st.subheader("Search for Invoice information")
                 invoice_number = st.text_input("Enter Invoice Number: (invoiceno)", "")
                 st.dataframe(get_invoice_info(invoice_number))
+
+    elif authentication_status is False:
+        st.error("Invalid username or password.")
+    elif authentication_status is None:
+        st.warning("Please enter your login credentials.")
 
 if __name__ == "__main__":
     main()
