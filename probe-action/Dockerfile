@@ -4,4 +4,5 @@ COPY probe.js /home/pptruser/src/probe.js
 
 WORKDIR /home/pptruser/src
 
-ENTRYPOINT ["bash", "-c", "pwd && ls -l . && node /home/pptruser/src/probe.js"]
+ENTRYPOINT ["node", "/home/pptruser/src/probe.js"]
+# ENTRYPOINT ["bash", "-c", "pwd && ls -l . && node /home/pptruser/src/probe.js"] for debugging
