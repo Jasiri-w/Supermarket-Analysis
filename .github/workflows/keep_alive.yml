@@ -21,3 +21,12 @@ jobs:
       - name: Probe Deployed App Action Step
         uses: ./probe-action # Uses an action in the probe-action directory
         id: probe
+  notify:
+    needs: [probe_deployed_app]
+    runs-on: ubuntu-latest
+    name: Notify Discord
+    steps:
+      - uses: lacherogwu/failed-jobs-discord-notification-action@v1
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          needs_json: ${{ toJSON(needs) }}
