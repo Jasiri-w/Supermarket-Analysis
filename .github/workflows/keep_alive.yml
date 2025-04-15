@@ -4,6 +4,12 @@ on:
   schedule:
     # Runs "at minute 0 past every 48 hour" (see https://crontab.guru)... ie: every 2 days
     - cron: '0 */48 * * *'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: false
+        default: 'production'
 
 jobs:
   probe_deployed_app:
