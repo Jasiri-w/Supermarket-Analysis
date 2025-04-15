@@ -4,4 +4,4 @@ WORKDIR /github/workspace/probe-action
 
 COPY probe.js .
 
-ENTRYPOINT ["bash", "-c", "ls -l /github/workspace && node probe.js"]
+ENTRYPOINT ["bash", "-c", "pwd && ls -l . && node probe_action/probe.js"]
