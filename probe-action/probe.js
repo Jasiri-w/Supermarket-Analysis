@@ -19,8 +19,10 @@ const PAGE_LOAD_GRACE_PERIOD_MS = 8000;
         if (button) {
             console.log("App hibernating. Attempting to wake up!");
             await button.click();
+        } else {
+            console.log("No hibernation button found. App might already be active or the button is missing.");
         }
-    }
+    };
 
     await checkForHibernation(page);
     const frames = (await page.frames());
