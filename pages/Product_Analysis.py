@@ -378,14 +378,18 @@ def main():
 
     # Example for expanders with headers and data
 
-    if 'authentication_status' not in st.session_state:
-        st.session_state['authentication_status'] = False
+     # Authenticate user
+    authenticator = get_authenticator()
+    if authenticator:
+        authenticator.login(key='LoginProductAnalysis', location='main')
 
-    if not st.session_state['authentication_status']:
-        get_authenticator().login(key='LoginCRM',location= 'main')
-        st.warning("Please enter your login credentials to access the CRM.")
+    # Safely access session state keys with default values
+    authentication_status = st.session_state.get('authentication_status', None)
+    name = st.session_state.get('name', "Guest")
 
-    else:
+    if authentication_status:
+        st.success(f"Welcome, {name}!")
+        st.sidebar.success("You are logged in.")
 
         # Most Purchased Items
         with st.expander("Credit Account Most Purchased Items"):
@@ -411,7 +415,10 @@ def main():
         with st.expander("Longest Buying Customers"):
             longest_buying_customers_data = get_longest_buying_customers()
             st.dataframe(longest_buying_customers_data)
-
+    elif authentication_status is False:
+        st.error("Invalid username or password.")
+    elif authentication_status is None:
+        st.warning("Please enter your login credentials to access the Product Analysis page.")
 # Run the main function only if this file is executed directly
 if __name__ == "__main__":
     main()
