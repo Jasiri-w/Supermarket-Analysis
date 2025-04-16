@@ -27,6 +27,8 @@ def get_all_customer_data():
             - most_purchased_item: Name of the most frequently purchased item.
             - most_purchased_item_count: How many times this most purchased item was bought.
             - purchase_duration_days: The number of days between the first and last purchase.
+            - customer_email: Email of the customer.
+            - customer_address: Address of the customer.
     """
     query = """
     WITH customer_payment_totals AS (
@@ -36,7 +38,9 @@ def get_all_customer_data():
             COUNT(DISTINCT pay.paymentid) AS total_payments,
             SUM(pay.amount) AS total_paid,
             MIN(pay.datein) AS first_payment_date,
-            MAX(pay.datein) AS last_payment_date
+            MAX(pay.datein) AS last_payment_date,
+            MIN(c.email) AS customer_email,
+            MIN(c.address) AS customer_address
         FROM
             public.payment pay
         JOIN

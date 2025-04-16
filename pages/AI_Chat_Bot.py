@@ -1,5 +1,5 @@
 from datetime import datetime, date
-import io
+import inspect
 import json
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
@@ -107,7 +107,7 @@ def load_data():
         """
         # Default foundational queries to provide breadth for the chatbot
         foundational_queries = {
-            "Customer Information": "SELECT * FROM public.customers",
+            #"Customer Information": "SELECT * FROM public.customers",
             #"Product Inventory": "SELECT * FROM public.product LIMIT 100",
             #"Transactions": "SELECT * FROM public.transactions LIMIT 100",
             #"transaction_details": "SELECT * FROM public.transactiondetails LIMIT 100",
@@ -115,8 +115,31 @@ def load_data():
         }
 
         query_descriptions = {
-            "Customer Information": "This data represents customer information from the database including their name (cname), address (address), phone number (phone), email (email), and credit limit (creditlimit). The 'Cash Sale' customer represents all daily customers that buy items without an account while the rest are Credit Account holders.",
-            "Product Inventory": "This data represents the product inventory data from the database, including the product's name (description), id/number (productno), how much it cost to purchase (purchasecost), how much it is sold for (saleprice), and the number of times the product was purchased (purchase_count).",
+           "Customer Information": (
+                "This data represents detailed the cumulative information about each of our customers from the database, not individual transactions, including the following fields: "
+                "- phone: The customer's phone number. "
+                "- customer_name: Name of the customer. If the name of the customer is 'Cash Sale' then they are an anonymous customer without a credit account."
+                "- total_payments: The total number of payments made by the customer since being with the company. "
+                "- total_paid: The total amount paid by the customer over the course of their history with us. "
+                "- first_payment_date: Date of the first payment they ever made at the business. "
+                "- last_payment_date: Date of the last payment they ever made at the business. "
+                "- total_purchases: Total number of purchases made by the customer over the course of their time with us. "
+                "- first_purchase_date: Date of the first recorded purchase. "
+                "- last_purchase_date: Date of the last recorded purchase. "
+                "- most_purchased_item: Name of the most frequently purchased item. "
+                "- most_purchased_item_count: The number of times the purchased their most purchased item at our business. "
+                "- purchase_duration_days: The number of days between their first and last purchase, in otherwords, their longevity with us. "
+                "- customer_email: Email of the customer. "
+                "- customer_address: Address of the customer."
+            ),
+            "Product Inventory": (
+                "This data represents detailed information about the product inventory from the database, including the following fields: "
+                "- productno: This is the product number, a unique identifier for each product. "
+                "- description: Name or description of the product. "
+                "- saleprice: The price at which the product is sold to customers. "
+                "- buyprice: The cost incurred by the company to purchase the product. "
+                "- purchase_count: The total number of times the product has been purchased by customers."
+            ),            
             #"Transactions": "This query fetches the transaction data from the database.",
             #"transaction_details": "This query fetches the transaction details from the database.",
             #"payment_data": "This query fetches the payment data from the database.",
@@ -136,6 +159,14 @@ def load_data():
                 )
             except Exception as e:
                 print(f"Error fetching {query_name}: {e}")
+
+        product_info = get_all_customer_data()
+        documents.append(
+            Document(
+                text=product_info.to_string(index=False),
+                metadata={"Source": "Customer Information", "Description": query_descriptions["Product Inventory"], "Type": "Database Data"},
+            )
+        )
 
         product_info = get_products()
         documents.append(
@@ -232,6 +263,22 @@ def render_visualization(llm_response):
     Render visualizations based on the LLM response. Utilizes all imported functions.
     :param llm_response: Dictionary with keys 'text' and optional 'visualization'.
     """
+    # Auxiliary function to cast parameters to their respective types
+    def cast_params_to_types(func, data_params):
+        sig = inspect.signature(func)
+        type_hints = {
+            name: param.annotation
+            for name, param in sig.parameters.items()
+            if param.annotation is not inspect.Parameter.empty
+        }
+
+        filtered_params = {
+            k: type_hints[k](v) if k in type_hints else v
+            for k, v in data_params.items()
+        }
+
+        return filtered_params
+
     visualization = llm_response.get("visualization", {})
 
     # Handle visualizations
@@ -242,20 +289,21 @@ def render_visualization(llm_response):
         # Find and execute the function
         visualization_function = function_registry.get(vis_type)
         if visualization_function:
-            if visualization_function == get_recommendations:
-                try:
-                    productno = data_params.get("productno")
-                    output = visualization_function(productno, get_products())
-                    return (st.dataframe, output)
-                except Exception as e:
-                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
-                    return None
-            elif visualization_function.__code__.co_varnames[0] == "df":
+            if "df" in visualization_function.__code__.co_varnames:
                 try:
                     st.session_state.start_date = data_params.get("start_date") if "start_date" in data_params else sales_data_frame.index.min().date()
                     st.session_state.end_date = data_params.get("end_date") if "end_date" in data_params else sales_data_frame.index.max().date()
                     
-                    output = visualization_function(sales_data_frame)
+                    filtered_params = {k: v for k, v in data_params.items() if k not in ["start_date", "end_date"]}
+                    if filtered_params:
+                        if visualization_function == get_recommendations:
+                            filtered_params = cast_params_to_types(visualization_function, filtered_params)
+                            output = visualization_function(**filtered_params, df=get_products())
+                            print(f"Output: {output}")
+                        return (st.dataframe, output)
+                    else:
+                        output = visualization_function(sales_data_frame)
+                        # Needs to be implemented and tested for all relevant functions
                     return (st.dataframe, sales_data_frame[(sales_data_frame.index >= pd.to_datetime(st.session_state.start_date)) & (sales_data_frame.index <= pd.to_datetime(st.session_state.end_date))])
                 except Exception as e:
                     #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
@@ -268,7 +316,7 @@ def render_visualization(llm_response):
                     output = visualization_function(data_params.get("phone"))
                     return (st.dataframe, output)
                 except Exception as e:
-                    #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    print(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
             else:
                 try:
@@ -282,9 +330,10 @@ def render_visualization(llm_response):
                         return (st.write, output)
                 except Exception as e:
                     #st.error(f"Error executing {vis_type}: {e} \n {llm_response}")
+                    print(f"Error executing {vis_type}: {e} \n {llm_response}")
                     return None
         else:
-            #st.error(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
+            print(f"Visualization type '{vis_type}' not recognized. \n {llm_response}")
             return None
     else:
         st.write(f"No visualization requested.")
@@ -299,7 +348,7 @@ response_synthesizer_compact = get_response_synthesizer(response_mode="compact",
 
 if "chat_engine" not in st.session_state.keys():  # Initialize the chat engine
     st.session_state.chat_engine = index.as_chat_engine(
-        chat_mode="condense_question", verbose=True, streaming=True
+        chat_mode="condense_plus_context", verbose=True, streaming=True
     )
 
 # Authenticate user
@@ -370,6 +419,7 @@ if authentication_status:
             st.toast("Polling the LLM ...")
             
             response = st.session_state.chat_engine.chat(prompt)
+            print(f"LLM  Final Response: {response}")
             st.session_state.json_responses.append(json.loads(response.response))
             response_text = json.loads(response.response)["text"]
             st.toast("Done thinking!")
@@ -377,7 +427,6 @@ if authentication_status:
             st.write_stream(stream_generator(response_text))
 
             st.toast("Rendering any visualizations")
-            
             visualization = render_visualization(json.loads(response.response))
 
             if visualization:

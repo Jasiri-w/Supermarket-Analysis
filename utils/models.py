@@ -4,7 +4,7 @@ import streamlit as st
 
 cosine_sim = joblib.load(st.secrets["CBF_MODEL_PATH"])
                     
-def get_recommendations(productno, df, cosine_sim=cosine_sim):
+def get_recommendations(productno: int, df, cosine_sim=cosine_sim):
     '''
     Get product recommendations based on cosine similarity, purchase count, and sales margin.
     
