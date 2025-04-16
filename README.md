@@ -69,7 +69,11 @@ This assistant has been fine-tuned using a carefully curated dataset of supermar
 
 ![image](https://github.com/user-attachments/assets/60a3d512-af36-4150-89e2-d9077d817bb3)
 
+![{E4C87658-D8A4-4D10-9D6D-E749C9299E8F}](https://github.com/user-attachments/assets/d88ba996-e8eb-4dcb-80bb-9665d0403c63)
+
 ![image](https://github.com/user-attachments/assets/09f0bec2-ebc8-4318-9463-90c3a46a4e33)
+
+![{1933AB27-703A-4910-84C9-04FC2D75F29D}](https://github.com/user-attachments/assets/43936a93-6708-4888-ae19-490bc20ecb28)
 
 ... View more at [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
 
@@ -77,9 +81,14 @@ Example questions you can ask the AI Assistant:
 
 - What are the top 10 best-selling items?
 - Show me the sales trend over the last 3 months.
-- What did the customer with phone number 0712345678 buy last week?
 - Which product category brings in the most revenue?
 - Show me all customers who have shopped more than 10 times.
+
+## AI ChatBot Flow Chart
+How information is processed and then presented.
+
+![AI Chatbot Flow Chart drawio](https://github.com/user-attachments/assets/9f2eb19f-1d22-4475-8546-ddcf7f195ba6)
+
 
 ## Icons and Visuals
 Icons used in this project are courtesy of [geticon](https://github.com/get-icon/geticon).
