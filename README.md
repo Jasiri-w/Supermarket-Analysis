@@ -69,8 +69,6 @@ This assistant has been fine-tuned using a carefully curated dataset of supermar
 
 ![image](https://github.com/user-attachments/assets/60a3d512-af36-4150-89e2-d9077d817bb3)
 
-![image](https://github.com/user-attachments/assets/b8d1480a-949a-45e3-84b6-9d973b41c8d4)
-
 ![image](https://github.com/user-attachments/assets/09f0bec2-ebc8-4318-9463-90c3a46a4e33)
 
 ... View more at [Supermarket Analytics Dashboard](https://supermarket-analytics-dashboard.streamlit.app/)
