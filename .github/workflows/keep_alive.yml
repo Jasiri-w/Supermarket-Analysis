@@ -2,8 +2,8 @@
 name: Trigger Probe of Deployed App on a CRON Schedule
 on:
   schedule:
-    # Runs "at minute 0 past every 48 hour" (see https://crontab.guru)... ie: every 2 days
-    - cron: '0 */48 * * *'
+    # Runs “At minute 0 past every 10th hour.” (see https://crontab.guru)... ie: 10PM everyday
+    - cron: '0 */10 * * *'
   workflow_dispatch:
     inputs:
       environment:
