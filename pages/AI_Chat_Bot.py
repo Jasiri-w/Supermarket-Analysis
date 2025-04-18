@@ -4,6 +4,7 @@ import json
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
 import matplotlib.pyplot as plt
+import os
 import openai
 import pandas as pd
 import streamlit as st
@@ -365,6 +366,8 @@ username = st.session_state.get('username', "guest")
 
 if authentication_status:
     st.success(f"Welcome, {name}!")
+    st.write(f"Temp File Location: {Settings.tokenizer_cache_dir}")
+    st.write(f"Temp File Location: {os.getenv('LLAMA_INDEX_CACHE_DIR')}")
     st.sidebar.success("You are logged in.")
 
     # OpenAI Chat Bot
