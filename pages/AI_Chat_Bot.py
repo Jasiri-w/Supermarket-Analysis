@@ -253,6 +253,8 @@ def load_data():
             You must not invent or assume the existence of data or functions that are not explicitly provided in the registry or the database. Always use the exact function names and ensure all answers are based strictly on the provided data and context. If no valid match exists, clearly state that the query cannot be answered.
             """
     )
+    # LlamaIndex-level protection
+    Settings.tokenizer_cache_dir = "/tmp/llamaindex_cache"
 
     # Build and return the index
     index = VectorStoreIndex.from_documents(all_documents)

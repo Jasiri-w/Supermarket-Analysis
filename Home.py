@@ -1,5 +1,16 @@
 import streamlit as st
 import streamlit_authenticator as stauth
+
+import os
+from llama_index.core import Settings
+
+# Environment-level protection
+os.environ["LLAMA_INDEX_CACHE_DIR"] = "/tmp/llamaindex_cache"
+os.environ["TOKENIZERS_PARALLELISM"] = "false"
+
+# LlamaIndex-level protection
+Settings.tokenizer_cache_dir = "/tmp/llamaindex_cache"
+
 from utils.auth import get_authenticator
 
 st.set_page_config(
