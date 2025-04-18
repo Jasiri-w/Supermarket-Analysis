@@ -2,16 +2,21 @@ import streamlit as st
 import streamlit_authenticator as stauth
 
 import os
+import nltk
 from llama_index.core import Settings
 
-# Environment setup
+# Set all cache directories safely to /tmp
 os.environ["LLAMA_INDEX_CACHE_DIR"] = "/tmp/llamaindex_cache"
 os.environ["TIKTOKEN_CACHE_DIR"] = "/tmp/tiktoken_cache"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
-# Ensure the temp folders exist
+# Make sure temp folders exist
 os.makedirs("/tmp/llamaindex_cache", exist_ok=True)
 os.makedirs("/tmp/tiktoken_cache", exist_ok=True)
+os.makedirs("/tmp/nltk_data", exist_ok=True)
+
+# Tell NLTK to use the temp folder
+nltk.data.path.append("/tmp/nltk_data")
 
 # LlamaIndex-level protection
 Settings.tokenizer_cache_dir = "/tmp/llamaindex_cache"

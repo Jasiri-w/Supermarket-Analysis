@@ -4,6 +4,7 @@ import json
 from llama_index.llms.openai import OpenAI
 from llama_index.core import VectorStoreIndex, Document, Settings, SimpleDirectoryReader, get_response_synthesizer
 import matplotlib.pyplot as plt
+import nltk
 import os
 import openai
 import pandas as pd
@@ -26,12 +27,13 @@ if 'start_date' not in st.session_state:
 if 'end_date' not in st.session_state:
     st.session_state.end_date = datetime.now().date()
 
-if not os.makedirs("/tmp/llamaindex_cache", exist_ok=True) or not os.makedirs("/tmp/tiktoken_cache", exist_ok=True):
+if os.environ["LLAMA_INDEX_CACHE_DIR"] != "/tmp/llamaindex_cache":
     # Environment setup
     os.environ["LLAMA_INDEX_CACHE_DIR"] = "/tmp/llamaindex_cache"
     os.environ["TIKTOKEN_CACHE_DIR"] = "/tmp/tiktoken_cache"
     os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
+    nltk.data.path.append("/tmp/nltk_data")
     # Ensure the temp folders exist
     os.makedirs("/tmp/llamaindex_cache", exist_ok=True)
     os.makedirs("/tmp/tiktoken_cache", exist_ok=True)
@@ -39,6 +41,7 @@ if not os.makedirs("/tmp/llamaindex_cache", exist_ok=True) or not os.makedirs("/
     print("Temp folders created successfully.")
     print("LlamaIndex cache directory:", os.environ["LLAMA_INDEX_CACHE_DIR"])
     print("Tiktoken cache directory:", os.environ["TIKTOKEN_CACHE_DIR"])
+    print("Nltk data path:", nltk.data.path)
 
 from pages.Customer_Relationship_Manager import (
     get_all_customer_data,
