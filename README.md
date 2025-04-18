@@ -83,8 +83,7 @@ Example questions you can ask the AI Assistant:
 
 - What are the top 10 best-selling items?
 - Show me the sales trend over the last 3 months.
-- Which product category brings in the most revenue?
-- Show me all customers who have shopped more than 10 times.
+- ... More listed above
 
 ## AI ChatBot Flow Chart
 How information is processed and then presented.
