@@ -57,7 +57,7 @@ if authentication_status:
         
         with st.container(border=True, height=140):
             st.page_link("pages/AI_Chat_Bot.py", label="AI Chat Bot", icon="🤖", use_container_width=True)
-            st.markdown("TUpdated! Interact with the AI chatbot for better understanding of your data.")
+            st.markdown("**Updated!** Interact with the AI chatbot for better understanding of your data.")
 
 elif authentication_status is False:
     st.error("Invalid username or password.")
