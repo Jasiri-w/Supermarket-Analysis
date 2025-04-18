@@ -369,8 +369,6 @@ username = st.session_state.get('username', "guest")
 
 if authentication_status:
     st.success(f"Welcome, {name}!")
-    st.write(f"Temp File Location: {Settings.tokenizer_cache_dir}")
-    st.write(f"Temp File Location: {os.getenv('LLAMA_INDEX_CACHE_DIR')}")
     st.sidebar.success("You are logged in.")
 
     # OpenAI Chat Bot
