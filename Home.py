@@ -11,7 +11,7 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 # Ensure the temp folders exist
 os.makedirs("/tmp/llamaindex_cache", exist_ok=True)
-os.makedirs("/tmp/tiktoken_cache", exist_ok=True)"false"
+os.makedirs("/tmp/tiktoken_cache", exist_ok=True)
 
 # LlamaIndex-level protection
 Settings.tokenizer_cache_dir = "/tmp/llamaindex_cache"
