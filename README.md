@@ -89,7 +89,7 @@ Example questions you can ask the AI Assistant:
 ## AI ChatBot Flow Chart
 How information is processed and then presented.
 
-![AI Chatbot Flow Chart drawio](https://github.com/user-attachments/assets/9f2eb19f-1d22-4475-8546-ddcf7f195ba6)
+
 
 
 ## Icons and Visuals
