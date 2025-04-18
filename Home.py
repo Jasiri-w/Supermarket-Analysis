@@ -24,11 +24,11 @@ Settings.tokenizer_cache_dir = "/tmp/llamaindex_cache"
 from utils.auth import get_authenticator
 
 st.set_page_config(
-    page_title="Supermarket Analysis Dashboard",
+    page_title="Supermarket Data Analysis Dashboard",
     page_icon=st.secrets["FAVICON"],
     layout="centered",
 )
-st.title("Supermarket Analysis Dashboard")
+st.title("Supermarket Data Analysis Dashboard")
 st.sidebar.markdown("# Home")
 st.logo(
     st.secrets["LOGO"],

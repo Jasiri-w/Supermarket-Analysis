@@ -53,9 +53,11 @@ This project is developed using:
 
 ### 5. **AI Chat Assistant (New in 2025!)**
 An AI-powered assistant is integrated into the application to provide natural language querying capabilities for supermarket analytics. Powered by **OpenAI's GPT-3.5** and **LlamaIndex**, the assistant allows users to ask business questions such as:
-- "What were our best-selling products last month?"
-- "Who are our top customers this week?"
-- "Which payment method brings the highest revenue?"
+
+- "Who are our top customers?"
+- "Can you give me a summary of the products in the store?"
+- "Fetch the most purchased items for credit account customers"
+- "Can you plot our monthly sales trends?"
 
 The assistant retrieves answers by:
 - Indexing structured reports and insights from the supermarket dataset using **LlamaIndex** (vector-based search).
