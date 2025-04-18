@@ -26,6 +26,9 @@ if 'start_date' not in st.session_state:
 if 'end_date' not in st.session_state:
     st.session_state.end_date = datetime.now().date()
 
+print(f"Temp File Location in Settings: {Settings.tokenizer_cache_dir}")
+print(f"Temp File Location in OS ENV: {os.getenv('LLAMA_INDEX_CACHE_DIR')}")
+
 from pages.Customer_Relationship_Manager import (
     get_all_customer_data,
     get_customer_by_phone,
