@@ -30,3 +30,4 @@ jobs:
         with:
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           needs_json: ${{ toJSON(needs) }}
+          wake_up_log: ${{ needs.probe_deployed_app.outputs.wake_up_log }}
