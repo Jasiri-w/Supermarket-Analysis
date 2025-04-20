@@ -26,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Notify Discord
     steps:
-      - uses: Jasiri-w/jobs-discord-notification-action@discord
+      - uses: Jasiri-w/jobs-discord-notification-action@v2
         with:
           discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           needs_json: ${{ toJSON(needs) }}
