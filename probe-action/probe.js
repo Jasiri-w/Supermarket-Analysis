@@ -4,6 +4,8 @@ const WAKE_UP_BUTTON_TEXT = "app back up";
 const PAGE_LOAD_GRACE_PERIOD_MS = 8000;
 
 (async () => {
+
+    let woken_up = false;
     const browser = await puppeteer.launch(
         { args: ["--no-sandbox"] }
     );
@@ -18,9 +20,12 @@ const PAGE_LOAD_GRACE_PERIOD_MS = 8000;
         const [button] = await target.$x(`//button[contains(., '${WAKE_UP_BUTTON_TEXT}')]`);
         if (button) {
             console.log("App hibernating. Attempting to wake up!");
+            woken_up = true;
             await button.click();
         } else {
-            console.log("No hibernation button found. App might already be active or the button is missing.");
+            if(!woken_up){
+                console.log("No hibernation button found. App might already be active or the button is missing.");
+            }
         }
     };
 
