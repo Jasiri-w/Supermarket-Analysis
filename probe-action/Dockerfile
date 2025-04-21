@@ -8,9 +8,9 @@ ENTRYPOINT ["/bin/bash", "-c", "\
   node /home/pptruser/src/probe.js > /tmp/output.log 2>&1 && \
   cat /tmp/output.log && \
   if grep -q 'App hibernating' /tmp/output.log; then \
-    echo 'wake_up_log=App hibernating. Attempting to wake up!' >> $GITHUB_OUTPUT; \
+    echo 'wake_up_log=App hibernating. Attempting to wake up!' | tee -a $GITHUB_OUTPUT; \
   else \
-    echo 'wake_up_log=No hibernation button found. App might already be active or the button is missing.' >> $GITHUB_OUTPUT; \
+    echo 'wake_up_log=No hibernation button found. App might already be active or the button is missing.' | tee -a $GITHUB_OUTPUT; \
   fi \
 "]
 
