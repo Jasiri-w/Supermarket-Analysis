@@ -11,8 +11,13 @@ permissions:
   contents: write  # required to push the keep-alive commit
 
 jobs:
-  keep-active:
+  keep_active:
     runs-on: ubuntu-latest
+    name: Keep repository active
+    outputs:
+      days_since: ${{ steps.check.outputs.days_since }}
+      committed: ${{ steps.commit.outputs.committed }}
+      keep_active_log: ${{ steps.status.outputs.message }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,6 +32,7 @@ jobs:
           echo "days_since=$DAYS_SINCE" >> "$GITHUB_OUTPUT"
 
       - name: Make keep-alive commit if approaching 60-day cutoff
+        id: commit
         if: fromJSON(steps.check.outputs.days_since) >= 45
         env:
           DAYS_SINCE: ${{ steps.check.outputs.days_since }}
@@ -38,3 +44,29 @@ jobs:
           git add .github/.keep-active
           git commit -m "chore: keep repository active (automated, ${DAYS_SINCE}d since last commit)"
           git push
+          echo "committed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build status message for Discord
+        id: status
+        env:
+          DAYS_SINCE: ${{ steps.check.outputs.days_since }}
+          COMMITTED: ${{ steps.commit.outputs.committed }}
+        run: |
+          if [ "$COMMITTED" = "true" ]; then
+            MSG="Repo activity check: made a keep-alive commit — ${DAYS_SINCE} days since last commit (>= 45-day threshold)."
+          else
+            MSG="Repo activity check: no commit needed — only ${DAYS_SINCE} days since last commit (< 45-day threshold)."
+          fi
+          echo "$MSG"
+          echo "message=$MSG" >> "$GITHUB_OUTPUT"
+
+  notify:
+    needs: [keep_active]
+    runs-on: ubuntu-latest
+    name: Notify Discord
+    steps:
+      - uses: Jasiri-w/jobs-discord-notification-action@v2.0.1
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          needs_json: ${{ toJSON(needs) }}
+          wake_up_log: ${{ needs.keep_active.outputs.keep_active_log }}
