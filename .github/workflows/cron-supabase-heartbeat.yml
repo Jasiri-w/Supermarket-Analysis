@@ -1,0 +1,60 @@
+name: "Cron: Supabase Heartbeat"
+
+on:
+  schedule:
+    # Twice weekly — comfortably under Supabase's 7-day pause window even
+    # if one run is delayed or fails.
+    - cron: '0 8 * * 1,4'  # Monday and Thursday, 08:00 UTC
+  workflow_dispatch:
+
+jobs:
+  heartbeat:
+    runs-on: ubuntu-latest
+    name: Supabase heartbeat read
+    outputs:
+      heartbeat_log: ${{ steps.status.outputs.message }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: pip install psycopg2-binary
+
+      - name: Run heartbeat read
+        id: heartbeat
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        run: python scripts/cron/supabase-heartbeat.py
+
+      - name: Build status message for Discord
+        id: status
+        if: always()
+        run: |
+          if [ "${{ steps.heartbeat.outcome }}" = "success" ]; then
+            MSG="Supabase heartbeat: read-only query succeeded — project kept active."
+          else
+            MSG="Supabase heartbeat: read FAILED — project may auto-pause, check the run logs."
+          fi
+          echo "$MSG"
+          echo "message=$MSG" >> "$GITHUB_OUTPUT"
+
+  notify:
+    needs: [heartbeat]
+    if: always()
+    runs-on: ubuntu-latest
+    name: Notify Discord
+    steps:
+      - uses: Jasiri-w/jobs-discord-notification-action@v2.0.1
+        with:
+          discord_webhook_url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          needs_json: ${{ toJSON(needs) }}
+          wake_up_log: ${{ needs.heartbeat.outputs.heartbeat_log }}
