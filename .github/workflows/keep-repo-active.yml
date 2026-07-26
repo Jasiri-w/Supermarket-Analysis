@@ -1,0 +1,40 @@
+name: Keep Repository Active
+
+on:
+  schedule:
+    # Runs on the 1st of every month at a fixed off-hour time (avoids the
+    # top-of-hour queueing delay GitHub warns about for scheduled jobs).
+    - cron: '23 9 1 * *'
+  workflow_dispatch:  # allows a manual test run from the Actions tab
+
+permissions:
+  contents: write  # required to push the keep-alive commit
+
+jobs:
+  keep-active:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check days since last commit
+        id: check
+        run: |
+          LAST_COMMIT_TS=$(git log -1 --format=%ct)
+          NOW_TS=$(date +%s)
+          DAYS_SINCE=$(( (NOW_TS - LAST_COMMIT_TS) / 86400 ))
+          echo "Days since last commit: $DAYS_SINCE"
+          echo "days_since=$DAYS_SINCE" >> "$GITHUB_OUTPUT"
+
+      - name: Make keep-alive commit if approaching 60-day cutoff
+        if: fromJSON(steps.check.outputs.days_since) >= 45
+        env:
+          DAYS_SINCE: ${{ steps.check.outputs.days_since }}
+        run: |
+          mkdir -p .github
+          echo "Kept active by automated workflow on $(date -u +%Y-%m-%dT%H:%M:%SZ) — ${DAYS_SINCE} days since prior activity." > .github/.keep-active
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .github/.keep-active
+          git commit -m "chore: keep repository active (automated, ${DAYS_SINCE}d since last commit)"
+          git push
