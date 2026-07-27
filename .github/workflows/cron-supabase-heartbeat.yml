@@ -49,7 +49,7 @@ jobs:
 
   notify:
     needs: [heartbeat]
-    if: always()
+    if: failure()
     runs-on: ubuntu-latest
     name: Notify Discord
     steps:
