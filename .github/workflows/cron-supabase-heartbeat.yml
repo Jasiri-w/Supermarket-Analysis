@@ -37,7 +37,7 @@ jobs:
 
       - name: Build status message for Discord
         id: status
-        if: always()
+        if: failure()
         run: |
           if [ "${{ steps.heartbeat.outcome }}" = "success" ]; then
             MSG="Supabase heartbeat: read-only query succeeded — project kept active."
