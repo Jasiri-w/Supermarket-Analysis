@@ -23,6 +23,7 @@ jobs:
         id: probe
   notify:
     needs: [probe_deployed_app]
+    if: failure()
     runs-on: ubuntu-latest
     name: Notify Discord
     steps:
